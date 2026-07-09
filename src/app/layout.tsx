@@ -4,17 +4,9 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import QueryProvider from "@/components/providers/query-provider";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const geistSans = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
   title: "Fintra",
@@ -29,12 +21,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn(
-        geistSans.variable,
-        geistMono.variable,
-        "font-sans",
-        geist.variable,
-      )}
+      className={cn(geistSans.variable, geistMono.variable, "font-sans")}
     >
       <body>
         <QueryProvider>{children}</QueryProvider>
