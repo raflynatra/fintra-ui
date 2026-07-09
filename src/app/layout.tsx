@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import AuthProvider from "@/components/providers/auth-provider";
-import { cookies } from "next/headers";
+import QueryProvider from "@/components/providers/query-provider";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -22,27 +21,11 @@ export const metadata: Metadata = {
   description: "Your AI Powered Financial Tracker",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const hasRefreshToken = cookieStore.has("refresh_token");
-
-  let initialToken = null;
-
-  if (hasRefreshToken) {
-    const res = await fetch("/api/auth/refresh", {
-      method: "POST",
-      headers: { Cookie: cookieStore.toString() },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      initialToken = data.access_token;
-    }
-  }
-
   return (
     <html
       lang="en"
@@ -54,7 +37,7 @@ export default async function RootLayout({
       )}
     >
       <body>
-        <AuthProvider initialToken={initialToken}>{children}</AuthProvider>
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
