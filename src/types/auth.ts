@@ -4,10 +4,11 @@ import { ApiResponse } from "./api";
 
 export type LoginPayload = z.infer<typeof loginSchema>;
 
-type User = {
+export interface User {
+  id?: string;
   name: string;
   email: string;
-};
+}
 
 export interface LoginData {
   user: User;
