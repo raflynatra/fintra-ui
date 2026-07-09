@@ -1,28 +1,12 @@
-"use client";
-
-import { Button } from "@/components/ui/button";
-import { apiClient } from "@/lib/api-client";
-import { useAuthStore } from "@/stores/auth-store";
-import { useRouter } from "next/navigation";
-
-const Dashboard = () => {
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    try {
-      await apiClient.post("/api/auth/logout", {});
-    } finally {
-      useAuthStore.getState().logout();
-      router.push("/login");
-    }
-  };
-
+export default function DashboardPage() {
   return (
     <div>
-      <h1>Dashboard</h1>
-      <Button onClick={handleLogout}>Logout</Button>
+      <h2 className="mb-6 text-2xl font-bold">Welcome to Dashboard</h2>
+      <div className="grid gap-4">
+        <p className="text-muted-foreground">
+          Select a section from the sidebar to get started.
+        </p>
+      </div>
     </div>
   );
-};
-
-export default Dashboard;
+}
