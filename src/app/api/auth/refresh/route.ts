@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { RefreshResponse } from "@/types/auth";
+import type { RefreshResponse } from "@/features/auth/types";
 import { isApiError } from "@/types/api";
 import { API_URL } from "@/lib/env";
 import { applyRefreshTokenCookie } from "@/lib/server/auth-cookies";

@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { LoginForm, LoginHeader } from "@/components/login";
+import { LoginForm, LoginHeader } from "@/features/auth/components";
 import Image from "next/image";
 
 export default function LoginPage() {

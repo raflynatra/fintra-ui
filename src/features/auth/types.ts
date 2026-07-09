@@ -1,6 +1,6 @@
-import { loginSchema } from "@/validations/login.schema";
 import * as z from "zod";
-import { ApiResponse } from "./api";
+import { ApiResponse } from "@/types/api";
+import { loginSchema } from "./schema";
 
 export type LoginPayload = z.infer<typeof loginSchema>;
 
@@ -20,4 +20,13 @@ export type LoginResponse = ApiResponse<LoginData>;
 export interface RefreshData {
   token: string;
 }
+
 export type RefreshResponse = ApiResponse<RefreshData>;
+
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  setUser: (user: User, token: string) => void;
+  setToken: (token: string) => void;
+  logout: () => void;
+}

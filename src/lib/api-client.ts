@@ -1,5 +1,5 @@
-import { useAuthStore } from "@/stores/auth-store";
-import { RefreshData } from "@/types/auth";
+import { useAuthStore } from "@/features/auth/store";
+import { RefreshData } from "@/features/auth/types";
 
 type FetchOptions = RequestInit & {
   params?: Record<string, string>;

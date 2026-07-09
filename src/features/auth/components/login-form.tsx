@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoginError } from "./login-error";
-import { CardContent } from "../ui/card";
-import { loginSchema } from "@/validations/login.schema";
-import { LoginPayload } from "@/types/auth";
-import { useLogin } from "@/hooks/use-login";
+import { CardContent } from "@/components/ui/card";
+import { loginSchema } from "@/features/auth/schema";
+import { LoginPayload } from "@/features/auth/types";
+import { useLogin } from "@/features/auth/hooks/use-login";
 
 export function LoginForm() {
   const router = useRouter();

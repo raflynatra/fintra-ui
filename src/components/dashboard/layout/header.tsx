@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useLogout } from "@/hooks/use-logout";
+import { useLogout } from "@/features/auth/hooks/use-logout";
 import { useRouter } from "next/navigation";
 
 export function Header() {

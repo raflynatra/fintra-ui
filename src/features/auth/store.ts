@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import type { AuthState } from "./auth-types";
+import type { AuthState } from "./types";
 
 export const useAuthStore = create<AuthState>()(
   devtools(

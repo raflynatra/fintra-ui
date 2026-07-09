@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAuthStore } from "@/stores/auth-store";
+import { useAuthStore } from "@/features/auth/store";
 
 // NOTE: `useAuthStore` is a module singleton, so this seeds a client-side
 // store. Hydration runs in an effect (client only) to avoid mutating shared
