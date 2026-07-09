@@ -1,4 +1,4 @@
-import { API_URL } from "@/lib/constants";
+import { API_URL } from "@/lib/env";
 import { applyRefreshTokenCookie } from "@/lib/server/auth-cookies";
 import { isApiError } from "@/types/api";
 import type { RefreshResponse } from "@/types/auth";

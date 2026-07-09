@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { RefreshResponse } from "@/types/auth";
 import { isApiError } from "@/types/api";
-import { API_URL } from "@/lib/constants";
+import { API_URL } from "@/lib/env";
+import { applyRefreshTokenCookie } from "@/lib/server/auth-cookies";
 
 export async function POST(req: NextRequest) {
   const res = await fetch(`${API_URL}/api/auth/refresh`, {
@@ -10,6 +11,7 @@ export async function POST(req: NextRequest) {
       "Content-Type": "application/json",
       Cookie: req.headers.get("cookie") ?? "",
     },
+    credentials: "include",
   });
 
   const result: RefreshResponse = await res.json();
@@ -19,11 +21,7 @@ export async function POST(req: NextRequest) {
   }
 
   const response = NextResponse.json(result.data);
-
-  const setCookie = res.headers.get("set-cookie");
-  if (setCookie) {
-    response.headers.set("set-cookie", setCookie);
-  }
+  applyRefreshTokenCookie(response, res.headers);
 
   return response;
 }

@@ -1,4 +1,5 @@
-import { API_URL } from "@/lib/constants";
+import { API_URL } from "@/lib/env";
+import { applyRefreshTokenCookie } from "@/lib/server/auth-cookies";
 import { ApiResponse, isApiError } from "@/types/api";
 import { LoginData } from "@/types/auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -19,11 +20,7 @@ export async function POST(req: NextRequest) {
   }
 
   const response = NextResponse.json(result.data);
-
-  const setCookie = res.headers.get("set-cookie");
-  if (setCookie) {
-    response.headers.set("set-cookie", setCookie);
-  }
+  applyRefreshTokenCookie(response, res.headers);
 
   return response;
 }
