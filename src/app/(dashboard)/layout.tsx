@@ -1,4 +1,4 @@
-import { Header, Sidebar } from "@/components/dashboard";
+import { BottomNav, Header, Sidebar } from "@/components/dashboard";
 import AuthProvider from "@/components/providers/auth-provider";
 import { headers } from "next/headers";
 
@@ -13,14 +13,15 @@ export default async function DashboardLayout({
 
   return (
     <AuthProvider initialToken={token}>
-      <div className="flex min-h-screen flex-col">
+      <div className="flex min-h-dvh flex-col">
         <Header />
         <div className="flex flex-1">
           <Sidebar />
-          <main className="flex-1 overflow-auto bg-background p-6">
+          <main className="flex-1 overflow-auto bg-background p-4 pb-24 sm:p-6 md:pb-6">
             {children}
           </main>
         </div>
+        <BottomNav />
       </div>
     </AuthProvider>
   );

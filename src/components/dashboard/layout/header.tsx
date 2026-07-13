@@ -15,7 +15,10 @@ export function Header() {
   };
 
   return (
-    <header className="border-b border-border bg-card px-6 py-4 shadow-sm">
+    <header
+      className="border-b border-border bg-card px-4 py-4 shadow-sm sm:px-6"
+      style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
+    >
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">Fintra</h1>
         <Button

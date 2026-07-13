@@ -1,1 +1,1 @@
-export { Header, Sidebar } from "./layout";
+export { Header, Sidebar, BottomNav } from "./layout";

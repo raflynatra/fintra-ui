@@ -123,6 +123,10 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Mobile-first interaction defaults */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior-y: none;
   }
   html {
     @apply font-sans;
