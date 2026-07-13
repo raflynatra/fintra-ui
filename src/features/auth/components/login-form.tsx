@@ -37,9 +37,7 @@ export function LoginForm() {
       <CardContent className="flex flex-col gap-4">
         <div className="flex flex-col gap-6">
           {login.isError && (
-            <LoginError
-              message={login.error.message || "An error occurred"}
-            />
+            <LoginError message={login.error.message ?? "An error occurred"} />
           )}
 
           <div className="grid gap-3">
