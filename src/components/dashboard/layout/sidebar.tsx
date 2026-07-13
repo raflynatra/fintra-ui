@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/lib/constants";
 import { useSidebarStore } from "@/stores/sidebar-store";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -20,24 +21,6 @@ export function Sidebar() {
       )}
     >
       <div className="flex h-full flex-col">
-        {/* Toggle Button */}
-        <div className="flex items-center justify-end border-b border-border p-4">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={toggleSidebar}
-            title={isCollapsed ? "Expand" : "Collapse"}
-            className="ml-auto"
-          >
-            <ChevronLeft
-              className={cn(
-                "size-4 transition-transform",
-                isCollapsed && "rotate-180",
-              )}
-            />
-          </Button>
-        </div>
-
         {/* Navigation */}
         <nav className="flex-1 space-y-2 px-4 py-6">
           {NAV_ITEMS.map((item) => {
@@ -62,6 +45,25 @@ export function Sidebar() {
             );
           })}
         </nav>
+
+        <Separator />
+
+        {/* Toggle Button */}
+        <div className="flex items-center justify-center border-b border-border p-4">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={toggleSidebar}
+            title={isCollapsed ? "Expand" : "Collapse"}
+          >
+            <ChevronLeft
+              className={cn(
+                "size-4 transition-transform",
+                isCollapsed && "rotate-180",
+              )}
+            />
+          </Button>
+        </div>
       </div>
     </aside>
   );
