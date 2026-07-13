@@ -1,7 +1,12 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { Button } from "@/components/ui/button";
 
-export default function NotFound() {
+export default async function NotFound() {
+  const isAuthenticated = (await cookies()).has("refresh_token");
+  const href = isAuthenticated ? "/dashboard" : "/login";
+  const label = isAuthenticated ? "Back to dashboard" : "Go to sign in";
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 text-center">
       <p className="text-sm font-medium text-muted-foreground">404</p>
@@ -10,7 +15,7 @@ export default function NotFound() {
         The page you&apos;re looking for doesn&apos;t exist or has been moved.
       </p>
       <Button asChild>
-        <Link href="/">Back home</Link>
+        <Link href={href}>{label}</Link>
       </Button>
     </div>
   );
