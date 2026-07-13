@@ -23,28 +23,38 @@ export class ApiClientError extends Error {
   }
 }
 
-let refreshPromise: Promise<boolean> | null = null;
+// "refreshed" — got a fresh token, retry the original request.
+// "invalid"   — backend rejected the refresh (expired/invalid session) → sign out.
+// "unreachable" — network/backend failure; NOT an auth event, keep the session.
+type RefreshOutcome = "refreshed" | "invalid" | "unreachable";
 
-async function tryRefresh(): Promise<boolean> {
+let refreshPromise: Promise<RefreshOutcome> | null = null;
+
+async function tryRefresh(): Promise<RefreshOutcome> {
   if (refreshPromise) return refreshPromise;
 
   refreshPromise = fetch("/api/auth/refresh", {
     method: "POST",
     credentials: "include",
   })
-    .then(async (res) => {
-      if (!res.ok) return false;
+    .then(async (res): Promise<RefreshOutcome> => {
+      if (!res.ok) return "invalid";
       const data: RefreshData = await res.json();
       useAuthStore.getState().setToken(data.token);
-      return true;
+      return "refreshed";
     })
-    .catch(() => false)
+    // A rejected fetch (backend down) or a non-JSON body is a connectivity
+    // problem, not a failed auth — distinguish it so callers don't sign out.
+    .catch(() => "unreachable" as const)
     .finally(() => {
       refreshPromise = null;
     });
 
   return refreshPromise;
 }
+
+const SERVICE_UNAVAILABLE_MESSAGE =
+  "Can't reach the server. Please try again.";
 
 async function apiFetch<T>(
   endpoint: string,
@@ -67,11 +77,22 @@ async function apiFetch<T>(
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const response = await fetch(url.toString(), {
-    ...fetchOptions,
-    headers,
-    credentials: "include",
-  });
+  let response: Response;
+  try {
+    response = await fetch(url.toString(), {
+      ...fetchOptions,
+      headers,
+      credentials: "include",
+    });
+  } catch {
+    // Backend unreachable on the initial request. Surface as a connectivity
+    // error (toasted globally) without disturbing the session.
+    throw new ApiClientError(
+      SERVICE_UNAVAILABLE_MESSAGE,
+      0,
+      "SERVICE_UNAVAILABLE",
+    );
+  }
 
   if (!response.ok) {
     const error = await response
@@ -83,12 +104,23 @@ async function apiFetch<T>(
       !_retry &&
       error.code !== "AUTH_INVALID_CREDENTIALS"
     ) {
-      const refreshed = await tryRefresh();
+      const outcome = await tryRefresh();
 
-      if (refreshed) {
+      if (outcome === "refreshed") {
         return apiFetch<T>(endpoint, { ...options, _retry: true });
       }
 
+      // Backend unreachable during refresh — keep the user signed in; let the
+      // failure surface as a connectivity error toast.
+      if (outcome === "unreachable") {
+        throw new ApiClientError(
+          SERVICE_UNAVAILABLE_MESSAGE,
+          0,
+          "SERVICE_UNAVAILABLE",
+        );
+      }
+
+      // outcome === "invalid": a genuinely expired/invalid session.
       useAuthStore.getState().logout();
       window.location.href = "/login";
       throw new ApiClientError("Session expired", 401, error.code);

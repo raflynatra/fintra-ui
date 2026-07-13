@@ -23,16 +23,25 @@ export async function proxy(req: NextRequest) {
   if (PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
     if (!refreshToken) return NextResponse.redirect(new URL("/login", req.url));
 
-    const res = await fetch(`${API_URL}/api/auth/refresh`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: req.headers.get("cookie") ?? "",
-      },
-      credentials: "include",
-    });
-
-    const result: RefreshResponse = await res.json();
+    let res: Response;
+    let result: RefreshResponse;
+    try {
+      res = await fetch(`${API_URL}/api/auth/refresh`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: req.headers.get("cookie") ?? "",
+        },
+        credentials: "include",
+      });
+      result = await res.json();
+    } catch {
+      // Backend unreachable (ECONNREFUSED) or a non-JSON gateway page (502/504).
+      // A transient outage is NOT a sign-out: let the request through with the
+      // session intact and no access token. The client surfaces the error (as a
+      // toast) once it tries to fetch. Do not touch the refresh cookie.
+      return NextResponse.next();
+    }
 
     if (!res.ok || isApiError(result)) {
       const response = NextResponse.redirect(new URL("/login", req.url));
