@@ -1,0 +1,42 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import type { TransactionType } from "@/features/transactions/types";
+
+const TYPE_FILTER_OPTIONS = ["all", "income", "expense"] as const;
+type TypeFilter = (typeof TYPE_FILTER_OPTIONS)[number];
+
+interface TransactionFiltersProps {
+  value: TransactionType | undefined;
+  onChange: (type: TransactionType | undefined) => void;
+}
+
+export function TransactionFilters({
+  value,
+  onChange,
+}: TransactionFiltersProps) {
+  const current: TypeFilter = value ?? "all";
+
+  return (
+    <div className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1">
+      {TYPE_FILTER_OPTIONS.map((option) => (
+        <Button
+          key={option}
+          type="button"
+          variant="ghost"
+          onClick={() => onChange(option === "all" ? undefined : option)}
+          aria-pressed={current === option}
+          className={cn(
+            "h-auto rounded-md py-1.5 text-sm capitalize hover:bg-transparent",
+            current === option
+              ? "bg-card text-foreground shadow-sm hover:bg-card"
+              : "text-muted-foreground",
+          )}
+        >
+          {option}
+        </Button>
+      ))}
+    </div>
+  );
+}
