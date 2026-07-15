@@ -16,6 +16,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--normal-border": "var(--border)",
         } as React.CSSProperties
       }
+      position="top-center"
       {...props}
     />
   );
