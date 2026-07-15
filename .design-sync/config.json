@@ -1,0 +1,10 @@
+{
+  "projectId": "b136f25d-e82d-4fa0-92a3-52b03af4c0f1",
+  "shape": "package",
+  "pkg": "fintra-ui",
+  "globalName": "FintraUI",
+  "srcDir": "src/components/ui",
+  "tsconfig": "tsconfig.json",
+  "cssEntry": ".design-sync/.cache/compiled-css/chunks/globals.css",
+  "readmeHeader": ".design-sync/conventions.md"
+}
