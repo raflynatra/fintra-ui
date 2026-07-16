@@ -10,16 +10,23 @@ type TypeFilter = (typeof TYPE_FILTER_OPTIONS)[number];
 interface TransactionFiltersProps {
   value: TransactionType | undefined;
   onChange: (type: TransactionType | undefined) => void;
+  className?: string;
 }
 
 export function TransactionFilters({
   value,
   onChange,
+  className,
 }: TransactionFiltersProps) {
   const current: TypeFilter = value ?? "all";
 
   return (
-    <div className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1">
+    <div
+      className={cn(
+        "grid grid-cols-3 gap-1 rounded-lg bg-muted p-1",
+        className,
+      )}
+    >
       {TYPE_FILTER_OPTIONS.map((option) => (
         <Button
           key={option}
