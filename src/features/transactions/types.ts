@@ -9,7 +9,6 @@ export interface Transaction {
   type: TransactionType;
   amount: number;
   categoryId: string | null;
-  // Resolved category name, already joined server-side.
   category: string | null;
   description: string | null;
   date: string;
@@ -40,6 +39,12 @@ export interface TransactionListParams {
 export interface TransactionListResult {
   transactions: Transaction[];
   pagination: PaginationMetadata;
+}
+
+export interface TransactionSummary {
+  balance: number;
+  totalIncome: number;
+  totalExpense: number;
 }
 
 export type TransactionPayload = z.infer<typeof transactionSchema>;
