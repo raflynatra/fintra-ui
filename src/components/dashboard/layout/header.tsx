@@ -1,34 +1,33 @@
 "use client";
 
+import { PlusIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { useLogout } from "@/features/auth/hooks/use-logout";
-import { useRouter } from "next/navigation";
+import { AddTransactionSheet } from "@/features/transactions/components";
+import { LogoutButton } from "@/features/auth/components";
 
 export function Header() {
-  const router = useRouter();
-  const logout = useLogout();
-
-  const handleLogout = () => {
-    logout.mutate(undefined, {
-      onSettled: () => router.push("/login"),
-    });
-  };
-
   return (
     <header
-      className="border-b border-border bg-card px-4 py-4 shadow-sm sm:px-6"
+      className="shrink-0 border-b border-border bg-card px-4 py-4 shadow-sm sm:px-6"
       style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
     >
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">Fintra</h1>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleLogout}
-          disabled={logout.isPending}
-        >
-          Logout
-        </Button>
+
+        <div className="flex items-center gap-2">
+          {/* Desktop-only: on mobile the bottom nav's raised FAB adds. */}
+          <AddTransactionSheet
+            trigger={
+              <Button type="button" size="sm" className="hidden md:inline-flex">
+                <PlusIcon className="size-4" />
+                Add transaction
+              </Button>
+            }
+          />
+
+          <LogoutButton />
+        </div>
       </div>
     </header>
   );
