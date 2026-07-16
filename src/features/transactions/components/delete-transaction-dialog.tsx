@@ -38,10 +38,13 @@ export function DeleteTransactionDialog({
     event.preventDefault();
     deleteTransaction.mutate(transaction.id, {
       onSuccess: () => {
-        toast.success("Transaction deleted");
+        toast.success("Transaction has been successfully deleted");
         onOpenChange(false);
       },
-      onError: (error) => toast.error(error.message),
+      onError: (error) =>
+        toast.error("Couldn't delete transaction", {
+          description: error.message,
+        }),
     });
   };
 
@@ -52,7 +55,9 @@ export function DeleteTransactionDialog({
           <AlertDialogTitle>Delete transaction?</AlertDialogTitle>
           <AlertDialogDescription>
             {formatCurrency(transaction.amount)}
-            {transaction.description ? ` — ${transaction.description}` : ""}{" "}
+            {transaction.description
+              ? ` — ${transaction.description}`
+              : ""}{" "}
             will be permanently removed. This can&apos;t be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>

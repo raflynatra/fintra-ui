@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  MutationCache,
   QueryCache,
   QueryClient,
   QueryClientProvider,
@@ -28,11 +27,22 @@ function isSystemError(error: unknown): boolean {
 }
 
 function notifyError(error: unknown) {
-  if (isSystemError(error)) {
-    const message =
-      error instanceof Error ? error.message : "Something went wrong.";
-    toast.error(message);
+  if (!isSystemError(error)) return;
+
+  const unreachable =
+    error instanceof ApiClientError &&
+    (error.status === 0 || error.code === "SERVICE_UNAVAILABLE");
+
+  if (unreachable) {
+    toast.error("Can't reach the server", {
+      description: "Check your connection and try again.",
+    });
+    return;
   }
+
+  toast.error("Something went wrong", {
+    description: error instanceof Error ? error.message : undefined,
+  });
 }
 
 export default function QueryProvider({
@@ -45,8 +55,11 @@ export default function QueryProvider({
   const [queryClient] = useState(
     () =>
       new QueryClient({
+        // Queries have no natural place to report a system failure, so they get
+        // the global toast. Mutations deliberately don't: each one reports its
+        // own error with action-specific copy ("Couldn't add transaction", …),
+        // and toasting here as well double-reported the same failure.
         queryCache: new QueryCache({ onError: notifyError }),
-        mutationCache: new MutationCache({ onError: notifyError }),
         defaultOptions: {
           queries: {
             staleTime: 60 * 1000,
