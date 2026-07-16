@@ -1,5 +1,10 @@
 const rupiahFormatter = new Intl.NumberFormat("id-ID");
 
+const rupiahCompactFormatter = new Intl.NumberFormat("id-ID", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
 /** Formats a number for display inside an editable amount input (no currency prefix). */
 export function formatAmountInput(value: number | undefined): string {
   return value === undefined || !Number.isFinite(value)
@@ -12,6 +17,15 @@ export function formatCurrency(value: number): string {
   return `Rp${rupiahFormatter.format(value)}`;
 }
 
+/**
+ * Formats a number as an abbreviated rupiah amount, e.g. "Rp255,1 rb" / "Rp15 jt".
+ * Lossy by design — for tight spaces only. Pair with the exact `formatCurrency`
+ * value in a `title`/tooltip so the precise amount stays reachable.
+ */
+export function formatCurrencyCompact(value: number): string {
+  return `Rp${rupiahCompactFormatter.format(value)}`;
+}
+
 /** Formats a "YYYY-MM-DD" transaction date for display, e.g. "14 Jul 2026". */
 export function formatTransactionDate(value: string): string {
   const [year, month, day] = value.split("-").map(Number);
@@ -19,5 +33,13 @@ export function formatTransactionDate(value: string): string {
     day: "numeric",
     month: "short",
     year: "numeric",
+  });
+}
+
+/** Formats a "YYYY-MM-DD" transaction date's weekday, e.g. "Tue". */
+export function formatTransactionWeekday(value: string): string {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString("en-GB", {
+    weekday: "short",
   });
 }
