@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { formatCurrency } from "@/lib/format";
 import { useCreateTransaction } from "@/features/transactions/hooks/use-create-transaction";
 import {
   TransactionForm,
@@ -13,33 +14,51 @@ import {
 } from "@/features/transactions/components/transaction-form";
 import type { TransactionPayload } from "@/features/transactions/types";
 
-export function AddTransactionSheet() {
+interface AddTransactionSheetProps {
+  /**
+   * Custom element to open the sheet. Defaults to the raised circular FAB,
+   * which is styled for the mobile bottom nav; desktop callers pass their own.
+   */
+  trigger?: React.ReactNode;
+}
+
+export function AddTransactionSheet({ trigger }: AddTransactionSheetProps) {
   const [open, setOpen] = React.useState(false);
   const createTransaction = useCreateTransaction();
 
   const onSubmit = (values: TransactionPayload) => {
     createTransaction.mutate(values, {
-      onSuccess: () => {
+      // The created record comes back with its category name resolved, so the
+      // description can confirm exactly what was recorded.
+      onSuccess: (created) => {
         toast.success(
-          `${values.type === "expense" ? "Expense" : "Income"} added`,
+          `${values.type === "expense" ? "Expense" : "Income"} has been successfully added`,
+          {
+            description: created.category
+              ? `${formatCurrency(created.amount)} · ${created.category}`
+              : formatCurrency(created.amount),
+          },
         );
         setOpen(false);
       },
-      onError: (error) => toast.error(error.message),
+      onError: (error) =>
+        toast.error("Couldn't add transaction", { description: error.message }),
     });
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          type="button"
-          aria-label="Add transaction"
-          size="icon-lg"
-          className="size-14 -translate-y-4 rounded-full ring-4 ring-background active:scale-95"
-        >
-          <PlusIcon className="size-6" strokeWidth={2.5} />
-        </Button>
+        {trigger ?? (
+          <Button
+            type="button"
+            aria-label="Add transaction"
+            size="icon-lg"
+            className="size-14 -translate-y-4 rounded-full ring-4 ring-background active:scale-95"
+          >
+            <PlusIcon className="size-6" strokeWidth={2.5} />
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent
