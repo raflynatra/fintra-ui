@@ -16,7 +16,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "hidden border-r border-border bg-muted/30 transition-all duration-300 md:block",
+        "hidden shrink-0 overflow-y-auto border-r border-border bg-muted/30 transition-all duration-300 md:block",
         isCollapsed ? "w-20" : "w-64",
       )}
     >

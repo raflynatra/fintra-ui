@@ -13,11 +13,11 @@ export default async function DashboardLayout({
 
   return (
     <AuthProvider initialToken={token}>
-      <div className="flex min-h-dvh flex-col">
+      <div className="flex h-dvh flex-col overflow-hidden">
         <Header />
-        <div className="flex flex-1">
+        <div className="flex min-h-0 flex-1">
           <Sidebar />
-          <main className="flex-1 overflow-auto bg-background p-4 pb-24 sm:p-6 md:pb-6">
+          <main className="min-h-0 flex-1 overflow-y-auto bg-background p-4 pb-24 sm:p-6 md:pb-6">
             {children}
           </main>
         </div>
