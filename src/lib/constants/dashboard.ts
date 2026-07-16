@@ -19,17 +19,17 @@ export const NAV_ITEMS: NavItem[] = [
     icon: LayoutDashboard,
   },
   {
-    href: "/dashboard/transactions",
+    href: "/transactions",
     label: "Transactions",
     icon: TrendingUp,
   },
   {
-    href: "/dashboard/reports",
+    href: "/reports",
     label: "Reports",
     icon: FileBarChart,
   },
   {
-    href: "/dashboard/settings",
+    href: "/settings",
     label: "Settings",
     icon: Settings,
   },

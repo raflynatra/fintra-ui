@@ -1,10 +1,10 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { formatCurrency, formatTransactionDate } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
 import { TRANSACTION_TYPE_COLOR } from "@/features/transactions/constants";
 import type { Transaction } from "@/features/transactions/types";
 
@@ -20,7 +20,18 @@ export function TransactionRow({
   onDelete,
 }: TransactionRowProps) {
   return (
-    <div className="flex items-center justify-between gap-3 py-3">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onEdit(transaction)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onEdit(transaction);
+        }
+      }}
+      className="flex w-full cursor-pointer items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted"
+    >
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">
           {transaction.category ?? "Uncategorized"}
@@ -30,9 +41,6 @@ export function TransactionRow({
             {transaction.description}
           </p>
         )}
-        <p className="text-xs text-muted-foreground">
-          {formatTransactionDate(transaction.date)}
-        </p>
       </div>
 
       <div className="flex shrink-0 items-center gap-1">
@@ -49,17 +57,12 @@ export function TransactionRow({
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Edit transaction"
-          onClick={() => onEdit(transaction)}
-        >
-          <Pencil className="size-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
           aria-label="Delete transaction"
-          onClick={() => onDelete(transaction)}
+          className="hover:text-destructive"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(transaction);
+          }}
         >
           <Trash2 className="size-4" />
         </Button>

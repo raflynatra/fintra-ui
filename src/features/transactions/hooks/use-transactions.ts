@@ -1,28 +1,22 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
+import { toStringParams } from "@/features/transactions/utils";
 import type {
   TransactionListParams,
   TransactionListResult,
 } from "@/features/transactions/types";
 
-function toStringParams(
-  params: TransactionListParams,
-): Record<string, string> {
-  const result: Record<string, string> = {};
-
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined) result[key] = String(value);
-  }
-
-  return result;
-}
-
-export function useTransactions(params: TransactionListParams) {
-  return useQuery({
+export function useTransactions(params: Omit<TransactionListParams, "page">) {
+  return useInfiniteQuery({
     queryKey: ["transactions", params],
-    queryFn: () =>
+    queryFn: ({ pageParam }) =>
       apiClient.get<TransactionListResult>("/api/transactions", {
-        params: toStringParams(params),
+        params: toStringParams({ ...params, page: pageParam }),
       }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.pagination.hasNextPage
+        ? lastPage.pagination.page + 1
+        : undefined,
   });
 }
