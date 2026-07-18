@@ -1,11 +1,12 @@
 import { API_URL } from "@/lib/env";
 import { applyRefreshTokenCookie } from "@/lib/server/auth-cookies";
+// Imported from the module directly, not the `@/lib/constants` barrel: the
+// barrel re-exports NAV_ITEMS, which would pull lucide into the middleware.
+import { APP_ROUTES, AUTH_ROUTES, PROTECTED_ROUTES } from "@/lib/constants/routes";
 import { isApiError } from "@/types/api";
 import type { RefreshResponse } from "@/features/auth/types";
 import { NextRequest, NextResponse } from "next/server";
 
-const PROTECTED_ROUTES = ["/dashboard"];
-const AUTH_ROUTES = ["/login"];
 const ACCESS_TOKEN_HEADER = "x-access-token";
 
 export async function proxy(req: NextRequest) {
@@ -15,13 +16,14 @@ export async function proxy(req: NextRequest) {
   // Redirect logged-in users away from auth pages
   if (AUTH_ROUTES.some((route) => pathname.startsWith(route))) {
     if (refreshToken)
-      return NextResponse.redirect(new URL("/dashboard", req.url));
+      return NextResponse.redirect(new URL(APP_ROUTES.dashboard, req.url));
     return NextResponse.next();
   }
 
   // Protect private routes
   if (PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
-    if (!refreshToken) return NextResponse.redirect(new URL("/login", req.url));
+    if (!refreshToken)
+      return NextResponse.redirect(new URL(APP_ROUTES.login, req.url));
 
     let res: Response;
     let result: RefreshResponse;
@@ -44,7 +46,7 @@ export async function proxy(req: NextRequest) {
     }
 
     if (!res.ok || isApiError(result)) {
-      const response = NextResponse.redirect(new URL("/login", req.url));
+      const response = NextResponse.redirect(new URL(APP_ROUTES.login, req.url));
       response.cookies.delete("refresh_token");
       return response;
     }

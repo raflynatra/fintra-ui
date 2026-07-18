@@ -1,5 +1,6 @@
 import { useAuthStore } from "@/features/auth/store";
 import { RefreshData } from "@/features/auth/types";
+import type { ApiErrorDetail } from "@/types/api";
 
 type FetchOptions = RequestInit & {
   params?: Record<string, string>;
@@ -9,17 +10,25 @@ type FetchOptions = RequestInit & {
 /**
  * Error thrown by the API client. Carries the HTTP `status` and the backend
  * error `code` so callers (and React Query) can branch on them reliably
- * instead of string-matching messages.
+ * instead of string-matching messages. `details` carries the per-field
+ * problems that accompany a 422 VALIDATION_ERROR, for mapping onto form fields.
  */
 export class ApiClientError extends Error {
   readonly status: number;
   readonly code?: string;
+  readonly details?: ApiErrorDetail[];
 
-  constructor(message: string, status: number, code?: string) {
+  constructor(
+    message: string,
+    status: number,
+    code?: string,
+    details?: ApiErrorDetail[],
+  ) {
     super(message);
     this.name = "ApiClientError";
     this.status = status;
     this.code = code;
+    this.details = details;
   }
 }
 
@@ -130,6 +139,7 @@ async function apiFetch<T>(
       error.message || `HTTP error ${response.status}`,
       response.status,
       error.code,
+      error.details,
     );
   }
 
