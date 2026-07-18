@@ -1,24 +1,20 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
-
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/format";
-import { TRANSACTION_TYPE_COLOR } from "@/features/transactions/constants";
+import {
+  TRANSACTION_TYPE_COLOR,
+  TRANSACTION_TYPE_SIGN,
+} from "@/features/transactions/constants";
 import type { Transaction } from "@/features/transactions/types";
 
 interface TransactionRowProps {
   transaction: Transaction;
   onEdit: (transaction: Transaction) => void;
-  onDelete: (transaction: Transaction) => void;
 }
 
-export function TransactionRow({
-  transaction,
-  onEdit,
-  onDelete,
-}: TransactionRowProps) {
+// The whole row opens the edit sheet; deleting is confirmed from inside it.
+export function TransactionRow({ transaction, onEdit }: TransactionRowProps) {
   return (
     <div
       role="button"
@@ -34,7 +30,9 @@ export function TransactionRow({
     >
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">
-          {transaction.category ?? "Uncategorized"}
+          {transaction.type === "transfer"
+            ? "Transfer"
+            : (transaction.category ?? "Uncategorized")}
         </p>
         {transaction.description && (
           <p className="truncate text-xs text-muted-foreground">
@@ -43,29 +41,22 @@ export function TransactionRow({
         )}
       </div>
 
-      <div className="flex shrink-0 items-center gap-1">
-        <span
+      <div className="text-end">
+        <p
           className={cn(
             "text-sm font-semibold",
             TRANSACTION_TYPE_COLOR[transaction.type],
           )}
         >
-          {transaction.type === "expense" ? "-" : "+"}
+          {TRANSACTION_TYPE_SIGN[transaction.type]}
           {formatCurrency(transaction.amount)}
-        </span>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Delete transaction"
-          className="hover:text-destructive"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(transaction);
-          }}
-        >
-          <Trash2 className="size-4" />
-        </Button>
+        </p>
+
+        <p className="text-xs text-muted-foreground">
+          {transaction.type === "transfer"
+            ? `${transaction.account} to ${transaction.toAccount}`
+            : transaction.account}
+        </p>
       </div>
     </div>
   );

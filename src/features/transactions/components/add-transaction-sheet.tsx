@@ -8,11 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/format";
 import { useCreateTransaction } from "@/features/transactions/hooks/use-create-transaction";
+import { TRANSACTION_TYPE_LABEL } from "@/features/transactions/constants";
 import {
   TransactionForm,
   emptyTransactionValues,
 } from "@/features/transactions/components/transaction-form";
-import type { TransactionPayload } from "@/features/transactions/types";
+import type { TransactionFormValues } from "@/features/transactions/types";
 
 interface AddTransactionSheetProps {
   /**
@@ -26,17 +27,29 @@ export function AddTransactionSheet({ trigger }: AddTransactionSheetProps) {
   const [open, setOpen] = React.useState(false);
   const createTransaction = useCreateTransaction();
 
-  const onSubmit = (values: TransactionPayload) => {
+  // Recomputed per open so `date` is today's, not the date the tab was loaded.
+  // Must be stable across renders — the form resets whenever this identity
+  // changes, which would wipe the user's input on every keystroke.
+  const defaultValues = React.useMemo(
+    () => emptyTransactionValues(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [open],
+  );
+
+  const onSubmit = (values: TransactionFormValues) => {
     createTransaction.mutate(values, {
-      // The created record comes back with its category name resolved, so the
-      // description can confirm exactly what was recorded.
+      // The created record comes back with its category and account names
+      // resolved, so the description can confirm exactly what was recorded.
       onSuccess: (created) => {
         toast.success(
-          `${values.type === "expense" ? "Expense" : "Income"} has been successfully added`,
+          `${TRANSACTION_TYPE_LABEL[created.type]} has been successfully added`,
           {
-            description: created.category
-              ? `${formatCurrency(created.amount)} · ${created.category}`
-              : formatCurrency(created.amount),
+            description:
+              created.type === "transfer"
+                ? `${formatCurrency(created.amount)} · ${created.account} → ${created.toAccount}`
+                : created.category
+                  ? `${formatCurrency(created.amount)} · ${created.category}`
+                  : formatCurrency(created.amount),
           },
         );
         setOpen(false);
@@ -70,8 +83,8 @@ export function AddTransactionSheet({ trigger }: AddTransactionSheetProps) {
 
         <TransactionForm
           title="Add transaction"
-          description="Record a new expense or income entry."
-          defaultValues={emptyTransactionValues}
+          description="Record a new expense, income or transfer."
+          defaultValues={defaultValues}
           onSubmit={onSubmit}
           isPending={createTransaction.isPending}
         />

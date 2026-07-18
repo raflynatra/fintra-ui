@@ -2,9 +2,12 @@
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { TRANSACTION_TYPES } from "@/features/transactions/schema";
 import type { TransactionType } from "@/features/transactions/types";
 
-const TYPE_FILTER_OPTIONS = ["all", "income", "expense"] as const;
+// Derived from the enum rather than re-listed, so a new transaction type shows
+// up here automatically instead of being silently unfilterable.
+const TYPE_FILTER_OPTIONS = ["all", ...TRANSACTION_TYPES] as const;
 type TypeFilter = (typeof TYPE_FILTER_OPTIONS)[number];
 
 interface TransactionFiltersProps {
@@ -23,7 +26,7 @@ export function TransactionFilters({
   return (
     <div
       className={cn(
-        "grid grid-cols-3 gap-1 rounded-lg bg-muted p-1",
+        "grid grid-cols-4 gap-1 rounded-lg bg-muted p-1",
         className,
       )}
     >
@@ -35,7 +38,7 @@ export function TransactionFilters({
           onClick={() => onChange(option === "all" ? undefined : option)}
           aria-pressed={current === option}
           className={cn(
-            "h-auto rounded-md py-1.5 text-sm capitalize hover:bg-transparent",
+            "h-auto rounded-md px-1 py-1.5 text-sm capitalize hover:bg-transparent",
             current === option
               ? "bg-card text-foreground shadow-sm hover:bg-card"
               : "text-muted-foreground",

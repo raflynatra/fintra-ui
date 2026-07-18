@@ -5,8 +5,12 @@ export function useDeleteTransaction() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => apiClient.delete<void>(`/api/transactions/${id}`),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["transactions"] }),
+    mutationFn: (id: string) =>
+      apiClient.delete<void>(`/api/transactions/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      // Balances are derived server-side, so any write moves them.
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+    },
   });
 }
