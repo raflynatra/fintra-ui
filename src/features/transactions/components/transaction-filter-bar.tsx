@@ -20,24 +20,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TransactionFilters } from "@/features/transactions/components/transaction-filters";
-import { useCategories } from "@/features/categories";
-import type {
-  TransactionListParams,
-  TransactionType,
-} from "@/features/transactions/types";
-
-interface TransactionFilterBarProps {
-  type: TransactionType | undefined;
-  categoryId: string | undefined;
-  dateFrom: string | undefined;
-  dateTo: string | undefined;
-  onChange: (
-    next: Pick<
-      TransactionListParams,
-      "type" | "categoryId" | "dateFrom" | "dateTo"
-    >,
-  ) => void;
-}
+import { useTransactionStore } from "@/features/transactions/store";
+import { useCategories, toCategoryType } from "@/features/categories";
+import { useAccounts } from "@/features/accounts";
 
 function toDateRange(
   dateFrom: string | undefined,
@@ -50,15 +35,27 @@ function toDateRange(
   };
 }
 
-export function TransactionFilterBar({
-  type,
-  categoryId,
-  dateFrom,
-  dateTo,
-  onChange,
-}: TransactionFilterBarProps) {
-  const { data: categories, isLoading: categoriesLoading } =
-    useCategories(type);
+/**
+ * Reads and writes the filter store directly rather than taking a prop per
+ * field: every control needs the whole filter set to emit a complete update, so
+ * threading them through was five props and a callback to say one thing.
+ */
+export function TransactionFilterBar() {
+  const { type, categoryId, accountId, dateFrom, dateTo } = useTransactionStore(
+    (state) => state.params,
+  );
+  const onChange = useTransactionStore((state) => state.setFilters);
+
+  // Transfers carry no category, so there's nothing to fetch — or show — when
+  // the type filter is set to one.
+  const isTransfer = type === "transfer";
+  const { data: categories, isLoading: categoriesLoading } = useCategories(
+    toCategoryType(type),
+  );
+  // Archived accounts are included: they still have history worth filtering to.
+  const { data: accounts, isLoading: accountsLoading } = useAccounts({
+    includeArchived: true,
+  });
 
   const dateRange = toDateRange(dateFrom, dateTo);
   const hasDateRange = !!dateFrom || !!dateTo;
@@ -73,42 +70,57 @@ export function TransactionFilterBar({
     <div className="flex flex-col gap-2">
       <TransactionFilters
         value={type}
+        // Changing type invalidates the category picked under the old one.
         onChange={(nextType) =>
-          onChange({
-            type: nextType,
-            categoryId: undefined,
-            dateFrom,
-            dateTo,
-          })
+          onChange({ type: nextType, categoryId: undefined })
         }
       />
 
       <div className="flex gap-2">
         <Select
-          value={categoryId ?? "all"}
+          value={accountId ?? "all"}
           onValueChange={(value) =>
-            onChange({
-              type,
-              categoryId: value === "all" ? undefined : value,
-              dateFrom,
-              dateTo,
-            })
+            onChange({ accountId: value === "all" ? undefined : value })
           }
-          disabled={categoriesLoading}
+          disabled={accountsLoading}
         >
           <SelectTrigger className="flex-1 bg-white">
-            <SelectValue placeholder="Category" />
+            <SelectValue placeholder="Account" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All categories</SelectItem>
-            {categories?.map((category) => (
-              <SelectItem key={category.id} value={category.id}>
-                {category.name}
+            <SelectItem value="all">All accounts</SelectItem>
+            {accounts?.map((account) => (
+              <SelectItem key={account.id} value={account.id}>
+                {account.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
 
+        {!isTransfer && (
+          <Select
+            value={categoryId ?? "all"}
+            onValueChange={(value) =>
+              onChange({ categoryId: value === "all" ? undefined : value })
+            }
+            disabled={categoriesLoading}
+          >
+            <SelectTrigger className="flex-1 bg-white">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All categories</SelectItem>
+              {categories?.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </div>
+
+      <div className="flex gap-2">
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -130,8 +142,6 @@ export function TransactionFilterBar({
               selected={dateRange}
               onSelect={(range) =>
                 onChange({
-                  type,
-                  categoryId,
                   dateFrom: range?.from
                     ? format(range.from, "yyyy-MM-dd")
                     : undefined,
@@ -152,12 +162,7 @@ export function TransactionFilterBar({
             size="icon-lg"
             aria-label="Clear date range"
             onClick={() =>
-              onChange({
-                type,
-                categoryId,
-                dateFrom: undefined,
-                dateTo: undefined,
-              })
+              onChange({ dateFrom: undefined, dateTo: undefined })
             }
           >
             <XIcon className="size-4" />

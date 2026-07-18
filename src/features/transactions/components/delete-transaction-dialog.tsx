@@ -21,12 +21,18 @@ interface DeleteTransactionDialogProps {
   transaction: Transaction | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /**
+   * Called after a successful delete, once this dialog has closed itself. The
+   * edit sheet uses it to close too — the record it was editing is gone.
+   */
+  onDeleted?: () => void;
 }
 
 export function DeleteTransactionDialog({
   transaction,
   open,
   onOpenChange,
+  onDeleted,
 }: DeleteTransactionDialogProps) {
   const deleteTransaction = useDeleteTransaction();
 
@@ -40,6 +46,7 @@ export function DeleteTransactionDialog({
       onSuccess: () => {
         toast.success("Transaction has been successfully deleted");
         onOpenChange(false);
+        onDeleted?.();
       },
       onError: (error) =>
         toast.error("Couldn't delete transaction", {

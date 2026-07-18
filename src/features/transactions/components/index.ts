@@ -1,6 +1,7 @@
 export { AddTransactionSheet } from "./add-transaction-sheet";
 export { EditTransactionSheet } from "./edit-transaction-sheet";
-export { DeleteTransactionDialog } from "./delete-transaction-dialog";
+// DeleteTransactionDialog is intentionally not exported: it's the edit sheet's
+// confirm step, not a standalone entry point.
 export { TransactionList } from "./transaction-list";
 export { TransactionEmpty } from "./transaction-empty";
 export { TransactionFilters } from "./transaction-filters";

@@ -46,7 +46,10 @@ function Stats({
         <p className="text-xs text-primary-foreground/70">{label}</p>
         {isLoading ? (
           <Skeleton
-            className={cn(label === "Balance" ? "h-7 w-64" : "h-4 w-28")}
+            className={cn(
+              "bg-muted/20",
+              label === "Balance" ? "h-7 w-64" : "h-4 w-28",
+            )}
           />
         ) : (
           <p

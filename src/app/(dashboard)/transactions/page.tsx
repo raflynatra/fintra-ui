@@ -1,73 +1,37 @@
 "use client";
 
-import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTransactions } from "@/features/transactions/hooks/use-transactions";
+import { useTransactionStore } from "@/features/transactions/store";
+import { hasActiveFilters } from "@/features/transactions/utils";
 import {
   TransactionList,
   TransactionFilterBar,
   TransactionSummary,
   EditTransactionSheet,
-  DeleteTransactionDialog,
 } from "@/features/transactions/components";
-import type {
-  Transaction,
-  TransactionListParams,
-} from "@/features/transactions/types";
 
 export default function TransactionsPage() {
-  const [params, setParams] = useState<Omit<TransactionListParams, "page">>({
-    size: 10,
-  });
-  const [editing, setEditing] = useState<Transaction | null>(null);
-  const [deleting, setDeleting] = useState<Transaction | null>(null);
+  const params = useTransactionStore((state) => state.params);
+  const openEdit = useTransactionStore((state) => state.openEdit);
+  const clearFilters = useTransactionStore((state) => state.clearFilters);
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useTransactions(params);
 
   const transactions = data?.pages.flatMap((page) => page.transactions) ?? [];
 
-  const handleFilterChange = (
-    next: Pick<
-      TransactionListParams,
-      "type" | "categoryId" | "dateFrom" | "dateTo"
-    >,
-  ) => setParams((params) => ({ ...params, ...next }));
-
-  const hasFilters = !!(
-    params.type ||
-    params.categoryId ||
-    params.dateFrom ||
-    params.dateTo
-  );
-
-  const handleClearFilters = () =>
-    setParams((params) => ({
-      ...params,
-      type: undefined,
-      categoryId: undefined,
-      dateFrom: undefined,
-      dateTo: undefined,
-    }));
-
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-4">
       <h2 className="text-2xl font-bold">Transactions</h2>
 
-      <div className="flex flex-col gap-4 lg:flex-row-reverse lg:items-start">
-        <aside className="flex flex-col gap-4 lg:sticky lg:top-6 lg:w-96 lg:shrink-0">
+      <div className="flex flex-col gap-4 lg:flex-row-reverse lg:items-start lg:gap-6">
+        <aside className="flex flex-col gap-4 lg:sticky lg:top-6 lg:w-2/5 lg:shrink-0">
           <TransactionSummary params={params} />
-
-          <TransactionFilterBar
-            type={params.type}
-            categoryId={params.categoryId}
-            dateFrom={params.dateFrom}
-            dateTo={params.dateTo}
-            onChange={handleFilterChange}
-          />
+          <TransactionFilterBar />
         </aside>
 
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 lg:w-3/5">
           {isLoading ? (
             <div className="flex flex-col gap-2">
               {Array.from({ length: 5 }).map((_, index) => (
@@ -77,28 +41,19 @@ export default function TransactionsPage() {
           ) : (
             <TransactionList
               transactions={transactions}
-              onEdit={setEditing}
-              onDelete={setDeleting}
+              onEdit={openEdit}
               hasMore={hasNextPage}
               isLoadingMore={isFetchingNextPage}
               onLoadMore={fetchNextPage}
-              hasFilters={hasFilters}
-              onClearFilters={handleClearFilters}
+              hasFilters={hasActiveFilters(params)}
+              onClearFilters={clearFilters}
             />
           )}
         </div>
       </div>
 
-      <EditTransactionSheet
-        transaction={editing}
-        open={!!editing}
-        onOpenChange={(open) => !open && setEditing(null)}
-      />
-      <DeleteTransactionDialog
-        transaction={deleting}
-        open={!!deleting}
-        onOpenChange={(open) => !open && setDeleting(null)}
-      />
+      {/* Reads its own target from the store, and owns the delete confirm. */}
+      <EditTransactionSheet />
     </div>
   );
 }

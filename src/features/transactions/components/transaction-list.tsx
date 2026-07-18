@@ -14,7 +14,6 @@ import type { Transaction } from "@/features/transactions/types";
 interface TransactionListProps {
   transactions: Transaction[];
   onEdit: (transaction: Transaction) => void;
-  onDelete: (transaction: Transaction) => void;
   hasMore?: boolean;
   isLoadingMore?: boolean;
   onLoadMore?: () => void;
@@ -26,7 +25,6 @@ interface TransactionListProps {
 export function TransactionList({
   transactions,
   onEdit,
-  onDelete,
   hasMore = false,
   isLoadingMore = false,
   onLoadMore,
@@ -89,7 +87,6 @@ export function TransactionList({
                 key={transaction.id}
                 transaction={transaction}
                 onEdit={onEdit}
-                onDelete={onDelete}
               />
             ))}
           </Card>
