@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, isNavActive } from "@/lib/utils";
 import { NAV_ITEMS } from "@/lib/constants";
 import { useSidebarStore } from "@/stores/sidebar-store";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ export function Sidebar() {
         <nav className="flex-1 space-y-2 px-4 py-6">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = isNavActive(pathname, item.href);
 
             return (
               <Link

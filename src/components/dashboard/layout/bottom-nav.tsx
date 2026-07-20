@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { cn, isNavActive } from "@/lib/utils";
 import { NAV_ITEMS, type NavItem } from "@/lib/constants";
 import { AddTransactionSheet } from "@/features/transactions/components";
 
@@ -14,10 +14,7 @@ export function BottomNav() {
 
   const renderItem = (item: NavItem) => {
     const Icon = item.icon;
-    const isActive =
-      item.href === "/dashboard"
-        ? pathname === "/dashboard"
-        : pathname === item.href || pathname.startsWith(`${item.href}/`);
+    const isActive = isNavActive(pathname, item.href);
 
     return (
       <li key={item.href} className="flex-1">
