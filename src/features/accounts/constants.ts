@@ -20,3 +20,11 @@ export const ACCOUNT_TYPE_ICON: Record<AccountType, LucideIcon> = {
   ewallet: WalletIcon,
   credit_card: CreditCardIcon,
 };
+
+/** Background color class per account type, used for distribution segments and legend swatches. */
+export const ACCOUNT_TYPE_COLOR: Record<AccountType, string> = {
+  cash: "bg-chart-1",
+  bank: "bg-chart-2",
+  ewallet: "bg-chart-3",
+  credit_card: "bg-chart-4",
+};
