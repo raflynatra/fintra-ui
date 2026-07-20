@@ -1,7 +1,6 @@
 import {
   LayoutDashboard,
   TrendingUp,
-  Wallet,
   FileBarChart,
   Settings,
   type LucideIcon,
@@ -24,11 +23,6 @@ export const NAV_ITEMS: NavItem[] = [
     href: APP_ROUTES.transactions,
     label: "Transactions",
     icon: TrendingUp,
-  },
-  {
-    href: APP_ROUTES.accounts,
-    label: "Accounts",
-    icon: Wallet,
   },
   {
     href: APP_ROUTES.reports,

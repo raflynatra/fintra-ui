@@ -1,15 +1,8 @@
 import type { TransactionType } from "@/features/transactions/types";
 
-/**
- * Deliberately narrower than `TransactionType`: transfers carry no category, so
- * the two unions diverge rather than one being reused for both.
- */
 export type CategoryType = "income" | "expense";
 
-/**
- * Narrows a transaction type to the category type it implies, or `undefined`
- * for a transfer (which has no categories to fetch).
- */
+/** Narrows a transaction type to its category type, or `undefined` for a transfer. */
 export function toCategoryType(
   type: TransactionType | undefined,
 ): CategoryType | undefined {

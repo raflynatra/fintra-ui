@@ -12,8 +12,6 @@ function jsonResponse(body: unknown, status = 200): Response {
 
 beforeEach(() => {
   useAuthStore.setState({ user: null, token: null });
-  // jsdom's window.location can't be navigated; replace it with a plain object
-  // so the client's `window.location.href = ...` is observable without throwing.
   Object.defineProperty(window, "location", {
     value: { origin: "http://localhost:3000", href: "http://localhost:3000/" },
     writable: true,
@@ -77,7 +75,6 @@ describe("apiClient", () => {
       code: "SERVICE_UNAVAILABLE",
       status: 0,
     });
-    // Session preserved, no redirect.
     expect(useAuthStore.getState().token).toBe("t");
     expect(useAuthStore.getState().user).not.toBeNull();
     expect(window.location.href).toBe("http://localhost:3000/");
@@ -87,16 +84,13 @@ describe("apiClient", () => {
     useAuthStore.setState({ user: { name: "Ada", email: "a@b.com" }, token: "expired" });
     const fetchMock = vi
       .fn()
-      // original request 401s
       .mockResolvedValueOnce(jsonResponse({ message: "unauthorized" }, 401))
-      // refresh call rejects (backend down)
       .mockRejectedValueOnce(new TypeError("fetch failed"));
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(apiClient.get("/api/data")).rejects.toMatchObject({
       code: "SERVICE_UNAVAILABLE",
     });
-    // A connectivity failure during refresh is NOT a sign-out.
     expect(useAuthStore.getState().token).toBe("expired");
     expect(useAuthStore.getState().user).not.toBeNull();
     expect(window.location.href).toBe("http://localhost:3000/");
@@ -116,7 +110,6 @@ describe("apiClient", () => {
     await expect(
       apiClient.post("/api/auth/login", { email: "a@b.com", password: "x" }),
     ).rejects.toThrow("Wrong password");
-    // Only the original call — no refresh attempt.
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 

@@ -16,7 +16,6 @@ export function Header() {
         <h1 className="text-lg font-semibold">Fintra</h1>
 
         <div className="flex items-center gap-2">
-          {/* Desktop-only: on mobile the bottom nav's raised FAB adds. */}
           <AddTransactionSheet
             trigger={
               <Button type="button" size="sm" className="hidden md:inline-flex">

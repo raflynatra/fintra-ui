@@ -17,11 +17,7 @@ export function formatCurrency(value: number): string {
   return `Rp${rupiahFormatter.format(value)}`;
 }
 
-/**
- * Formats a number as an abbreviated rupiah amount, e.g. "Rp255,1 rb" / "Rp15 jt".
- * Lossy by design — for tight spaces only. Pair with the exact `formatCurrency`
- * value in a `title`/tooltip so the precise amount stays reachable.
- */
+/** Formats a number as an abbreviated (lossy) rupiah amount, e.g. "Rp255,1 rb" / "Rp15 jt". */
 export function formatCurrencyCompact(value: number): string {
   return `Rp${rupiahCompactFormatter.format(value)}`;
 }

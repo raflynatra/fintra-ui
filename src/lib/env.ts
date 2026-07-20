@@ -1,12 +1,8 @@
 import * as z from "zod";
 
 /**
- * Server-only environment validation.
- *
- * Do NOT import this module from Client Components: it reads server-only
- * variables and throws at import time when they are missing or malformed,
- * which fails the build fast instead of surfacing as `undefined/api/...`
- * fetch errors at runtime. Client-safe values belong in `@/lib/constants`.
+ * Server-only environment validation. Throws at import time if variables are
+ * missing or malformed. Do not import from Client Components.
  */
 const serverEnvSchema = z.object({
   BACKEND_API_URL: z.url(),

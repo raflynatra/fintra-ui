@@ -10,10 +10,6 @@ import {
 } from "lucide-react";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 
-// Minimal wrapper around sonner's Toaster. The project doesn't use `next-themes`,
-// so the theme is left to sonner's default; styling is aligned to the design
-// system via CSS variables, and the per-type icons are overridden with lucide
-// equivalents. Individual calls can still override via `toast(msg, { icon })`.
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner

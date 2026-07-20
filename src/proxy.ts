@@ -1,7 +1,5 @@
 import { API_URL } from "@/lib/env";
 import { applyRefreshTokenCookie } from "@/lib/server/auth-cookies";
-// Imported from the module directly, not the `@/lib/constants` barrel: the
-// barrel re-exports NAV_ITEMS, which would pull lucide into the middleware.
 import { APP_ROUTES, AUTH_ROUTES, PROTECTED_ROUTES } from "@/lib/constants/routes";
 import { isApiError } from "@/types/api";
 import type { RefreshResponse } from "@/features/auth/types";
@@ -13,14 +11,12 @@ export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const refreshToken = req.cookies.get("refresh_token")?.value;
 
-  // Redirect logged-in users away from auth pages
   if (AUTH_ROUTES.some((route) => pathname.startsWith(route))) {
     if (refreshToken)
       return NextResponse.redirect(new URL(APP_ROUTES.dashboard, req.url));
     return NextResponse.next();
   }
 
-  // Protect private routes
   if (PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
     if (!refreshToken)
       return NextResponse.redirect(new URL(APP_ROUTES.login, req.url));
@@ -38,10 +34,6 @@ export async function proxy(req: NextRequest) {
       });
       result = await res.json();
     } catch {
-      // Backend unreachable (ECONNREFUSED) or a non-JSON gateway page (502/504).
-      // A transient outage is NOT a sign-out: let the request through with the
-      // session intact and no access token. The client surfaces the error (as a
-      // toast) once it tries to fetch. Do not touch the refresh cookie.
       return NextResponse.next();
     }
 

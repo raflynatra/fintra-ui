@@ -20,7 +20,6 @@ export async function PUT(
   });
 }
 
-// A soft delete: the backend archives the account and keeps its history.
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },

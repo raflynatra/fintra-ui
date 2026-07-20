@@ -1,10 +1,4 @@
-/**
- * Application route paths.
- *
- * Deliberately icon-free and dependency-free: `src/proxy.ts` runs in the
- * middleware runtime and imports this, so it must not pull in lucide (which is
- * why these can't live alongside `NAV_ITEMS` in `./dashboard`).
- */
+/** Application route paths. */
 export const APP_ROUTES = {
   login: "/login",
   dashboard: "/dashboard",
@@ -14,13 +8,7 @@ export const APP_ROUTES = {
   settings: "/settings",
 } as const;
 
-/**
- * Everything behind the dashboard shell. `(dashboard)` is a route *group*, so
- * it adds no URL segment — these paths are top-level and each has to be listed
- * explicitly. Missing one doesn't 404, it silently ships an unprotected page
- * that leans on the api-client's 401 refresh-and-retry to paper over the
- * absent access token.
- */
+/** Routes behind the dashboard shell that require a session. */
 export const PROTECTED_ROUTES: string[] = [
   APP_ROUTES.dashboard,
   APP_ROUTES.transactions,

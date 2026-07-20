@@ -21,7 +21,6 @@ export function Sidebar() {
       )}
     >
       <div className="flex h-full flex-col">
-        {/* Navigation */}
         <nav className="flex-1 space-y-2 px-4 py-6">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
@@ -48,7 +47,6 @@ export function Sidebar() {
 
         <Separator />
 
-        {/* Toggle Button */}
         <div className="flex items-center justify-center border-b border-border p-4">
           <Button
             variant="ghost"

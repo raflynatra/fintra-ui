@@ -1,10 +1,4 @@
-/**
- * A per-field problem accompanying a 422 VALIDATION_ERROR. Mirrors the
- * backend's `ErrorDetails`: every property is optional and extra ones are
- * allowed, so don't assume `field` is present before branching on it.
- */
 export interface ApiErrorDetail {
-  /** Dotted path to the offending field, e.g. "body.accountId". */
   field?: string;
   message?: string;
   [key: string]: unknown;

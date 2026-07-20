@@ -6,10 +6,6 @@ import { cn } from "@/lib/utils";
 import { NAV_ITEMS, type NavItem } from "@/lib/constants";
 import { AddTransactionSheet } from "@/features/transactions/components";
 
-// Mobile-only primary navigation. Hidden at md+ where the Sidebar takes over.
-// Pinned to the bottom for thumb reach, with safe-area padding so it clears the
-// home indicator on notched devices. Nav items are split around a raised
-// center "add transaction" action.
 export function BottomNav() {
   const pathname = usePathname();
   const mid = Math.ceil(NAV_ITEMS.length / 2);
@@ -18,8 +14,6 @@ export function BottomNav() {
 
   const renderItem = (item: NavItem) => {
     const Icon = item.icon;
-    // "/dashboard" is a prefix of every other route, so match it exactly;
-    // nested routes match themselves or a deeper path.
     const isActive =
       item.href === "/dashboard"
         ? pathname === "/dashboard"

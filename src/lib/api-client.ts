@@ -7,12 +7,7 @@ type FetchOptions = RequestInit & {
   _retry?: boolean;
 };
 
-/**
- * Error thrown by the API client. Carries the HTTP `status` and the backend
- * error `code` so callers (and React Query) can branch on them reliably
- * instead of string-matching messages. `details` carries the per-field
- * problems that accompany a 422 VALIDATION_ERROR, for mapping onto form fields.
- */
+/** Error thrown by the API client, carrying the HTTP `status`, backend `code`, and 422 field `details`. */
 export class ApiClientError extends Error {
   readonly status: number;
   readonly code?: string;
@@ -32,9 +27,6 @@ export class ApiClientError extends Error {
   }
 }
 
-// "refreshed" — got a fresh token, retry the original request.
-// "invalid"   — backend rejected the refresh (expired/invalid session) → sign out.
-// "unreachable" — network/backend failure; NOT an auth event, keep the session.
 type RefreshOutcome = "refreshed" | "invalid" | "unreachable";
 
 let refreshPromise: Promise<RefreshOutcome> | null = null;
@@ -52,8 +44,6 @@ async function tryRefresh(): Promise<RefreshOutcome> {
       useAuthStore.getState().setToken(data.token);
       return "refreshed";
     })
-    // A rejected fetch (backend down) or a non-JSON body is a connectivity
-    // problem, not a failed auth — distinguish it so callers don't sign out.
     .catch(() => "unreachable" as const)
     .finally(() => {
       refreshPromise = null;
@@ -94,8 +84,6 @@ async function apiFetch<T>(
       credentials: "include",
     });
   } catch {
-    // Backend unreachable on the initial request. Surface as a connectivity
-    // error (toasted globally) without disturbing the session.
     throw new ApiClientError(
       SERVICE_UNAVAILABLE_MESSAGE,
       0,
@@ -119,8 +107,6 @@ async function apiFetch<T>(
         return apiFetch<T>(endpoint, { ...options, _retry: true });
       }
 
-      // Backend unreachable during refresh — keep the user signed in; let the
-      // failure surface as a connectivity error toast.
       if (outcome === "unreachable") {
         throw new ApiClientError(
           SERVICE_UNAVAILABLE_MESSAGE,
@@ -129,7 +115,6 @@ async function apiFetch<T>(
         );
       }
 
-      // outcome === "invalid": a genuinely expired/invalid session.
       useAuthStore.getState().logout();
       window.location.href = "/login";
       throw new ApiClientError("Session expired", 401, error.code);
