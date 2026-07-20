@@ -13,10 +13,8 @@ import { DeleteTransactionDialog } from "@/features/transactions/components/dele
 import type { TransactionFormValues } from "@/features/transactions/types";
 
 export function EditTransactionSheet() {
-  const { formPayload, resetFormPayload } = useTransactionStore((state) => ({
-    formPayload: state.formPayload,
-    resetFormPayload: state.resetFormPayload,
-  }));
+  const formPayload = useTransactionStore((state) => state.formPayload);
+  const resetFormPayload = useTransactionStore((state) => state.resetFormPayload);
   const updateTransaction = useUpdateTransaction();
   const [confirmOpen, setConfirmOpen] = React.useState(false);
 
