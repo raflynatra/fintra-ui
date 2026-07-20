@@ -21,10 +21,6 @@ interface DeleteTransactionDialogProps {
   transaction: Transaction | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /**
-   * Called after a successful delete, once this dialog has closed itself. The
-   * edit sheet uses it to close too — the record it was editing is gone.
-   */
   onDeleted?: () => void;
 }
 
@@ -39,8 +35,6 @@ export function DeleteTransactionDialog({
   if (!transaction) return null;
 
   const handleConfirm = (event: React.MouseEvent) => {
-    // Radix closes the dialog on click by default; prevent that so it stays
-    // open (showing the pending state) until the mutation settles.
     event.preventDefault();
     deleteTransaction.mutate(transaction.id, {
       onSuccess: () => {
@@ -63,7 +57,7 @@ export function DeleteTransactionDialog({
           <AlertDialogDescription>
             {formatCurrency(transaction.amount)}
             {transaction.description
-              ? ` — ${transaction.description}`
+              ? ` - ${transaction.description}`
               : ""}{" "}
             will be permanently removed. This can&apos;t be undone.
           </AlertDialogDescription>

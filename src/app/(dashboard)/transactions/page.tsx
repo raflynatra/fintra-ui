@@ -13,8 +13,6 @@ import {
 
 export default function TransactionsPage() {
   const params = useTransactionStore((state) => state.params);
-  const openEdit = useTransactionStore((state) => state.openEdit);
-  const clearFilters = useTransactionStore((state) => state.clearFilters);
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useTransactions(params);
@@ -41,18 +39,15 @@ export default function TransactionsPage() {
           ) : (
             <TransactionList
               transactions={transactions}
-              onEdit={openEdit}
               hasMore={hasNextPage}
               isLoadingMore={isFetchingNextPage}
               onLoadMore={fetchNextPage}
               hasFilters={hasActiveFilters(params)}
-              onClearFilters={clearFilters}
             />
           )}
         </div>
       </div>
 
-      {/* Reads its own target from the store, and owns the delete confirm. */}
       <EditTransactionSheet />
     </div>
   );

@@ -10,7 +10,7 @@ const transaction = {
 
 describe("useTransactionStore", () => {
   beforeEach(() => {
-    useTransactionStore.setState({ params: { size: 10 }, editing: null });
+    useTransactionStore.setState({ params: { size: 10 }, formPayload: null });
   });
 
   describe("filters", () => {
@@ -43,23 +43,22 @@ describe("useTransactionStore", () => {
 
       useTransactionStore.getState().clearFilters();
 
-      // size is a display preference, not a filter — it must survive.
       expect(useTransactionStore.getState().params).toEqual({ size: 10 });
     });
   });
 
-  describe("editing", () => {
-    it("openEdit selects a transaction and closeEdit clears it", () => {
-      useTransactionStore.getState().openEdit(transaction);
-      expect(useTransactionStore.getState().editing).toBe(transaction);
+  describe("form payload", () => {
+    it("setFormPayload selects a transaction and resetFormPayload clears it", () => {
+      useTransactionStore.getState().setFormPayload(transaction);
+      expect(useTransactionStore.getState().formPayload).toBe(transaction);
 
-      useTransactionStore.getState().closeEdit();
-      expect(useTransactionStore.getState().editing).toBeNull();
+      useTransactionStore.getState().resetFormPayload();
+      expect(useTransactionStore.getState().formPayload).toBeNull();
     });
 
     it("leaves filters untouched", () => {
       useTransactionStore.getState().setFilters({ type: "income" });
-      useTransactionStore.getState().openEdit(transaction);
+      useTransactionStore.getState().setFormPayload(transaction);
 
       expect(useTransactionStore.getState().params.type).toBe("income");
     });

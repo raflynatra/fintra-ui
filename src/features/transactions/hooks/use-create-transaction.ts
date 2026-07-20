@@ -10,13 +10,10 @@ export function useCreateTransaction() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    // Takes the form's flat values and narrows them here, so a field left over
-    // from a type the user toggled away from can't reach the backend.
     mutationFn: (values: TransactionFormValues) =>
       apiClient.post<Transaction>("/api/transactions", toWritePayload(values)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
-      // Balances are derived server-side, so any write moves them.
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
     },
   });

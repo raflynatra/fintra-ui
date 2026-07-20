@@ -36,9 +36,6 @@ describe("groupTotals", () => {
   });
 
   it("excludes transfers from both totals", () => {
-    // Regression guard: an `else` branch here silently billed every transfer as
-    // an expense, making the day header disagree with the summary card (which
-    // the backend computes with transfers excluded).
     const totals = groupTotals([
       transaction({ type: "income", amount: 5000 }),
       transaction({
@@ -101,8 +98,6 @@ describe("toWritePayload", () => {
   });
 
   it("keeps toAccountId and drops categoryId for a transfer", () => {
-    // The stale categoryId is what a user leaves behind by toggling type; it
-    // must not reach the backend's `oneOf`.
     const payload = toWritePayload({
       ...base,
       type: "transfer",

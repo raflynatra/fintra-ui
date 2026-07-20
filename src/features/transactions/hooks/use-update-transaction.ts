@@ -23,7 +23,6 @@ export function useUpdateTransaction() {
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
-      // Balances are derived server-side, so any write moves them.
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
     },
   });

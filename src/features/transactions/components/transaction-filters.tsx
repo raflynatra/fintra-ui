@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { TRANSACTION_TYPES } from "@/features/transactions/schema";
 import type { TransactionType } from "@/features/transactions/types";
 
-// Derived from the enum rather than re-listed, so a new transaction type shows
-// up here automatically instead of being silently unfilterable.
 const TYPE_FILTER_OPTIONS = ["all", ...TRANSACTION_TYPES] as const;
 type TypeFilter = (typeof TYPE_FILTER_OPTIONS)[number];
 

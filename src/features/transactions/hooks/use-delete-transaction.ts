@@ -9,7 +9,6 @@ export function useDeleteTransaction() {
       apiClient.delete<void>(`/api/transactions/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
-      // Balances are derived server-side, so any write moves them.
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
     },
   });

@@ -12,17 +12,17 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { AddTransactionSheet } from "@/features/transactions/components/add-transaction-sheet";
+import { useTransactionStore } from "../store";
 
 interface TransactionEmptyProps {
-  /** Active filters mean the list is empty by choice, not because there's no data. */
   hasFilters?: boolean;
-  onClearFilters?: () => void;
 }
 
 export function TransactionEmpty({
   hasFilters = false,
-  onClearFilters,
 }: TransactionEmptyProps) {
+  const clearFilters = useTransactionStore((state) => state.clearFilters);
+
   if (hasFilters) {
     return (
       <Empty>
@@ -37,7 +37,7 @@ export function TransactionEmpty({
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button variant="outline" size="sm" onClick={onClearFilters}>
+          <Button variant="outline" size="sm" onClick={clearFilters}>
             Clear filters
           </Button>
         </EmptyContent>
@@ -57,7 +57,6 @@ export function TransactionEmpty({
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        {/* Its own trigger, so the copy stays true on both mobile and desktop. */}
         <AddTransactionSheet
           trigger={
             <Button type="button" size="sm">

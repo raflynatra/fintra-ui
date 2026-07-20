@@ -35,27 +35,20 @@ function toDateRange(
   };
 }
 
-/**
- * Reads and writes the filter store directly rather than taking a prop per
- * field: every control needs the whole filter set to emit a complete update, so
- * threading them through was five props and a callback to say one thing.
- */
 export function TransactionFilterBar() {
   const { type, categoryId, accountId, dateFrom, dateTo } = useTransactionStore(
     (state) => state.params,
   );
   const onChange = useTransactionStore((state) => state.setFilters);
 
-  // Transfers carry no category, so there's nothing to fetch — or show — when
-  // the type filter is set to one.
-  const isTransfer = type === "transfer";
   const { data: categories, isLoading: categoriesLoading } = useCategories(
     toCategoryType(type),
   );
-  // Archived accounts are included: they still have history worth filtering to.
   const { data: accounts, isLoading: accountsLoading } = useAccounts({
     includeArchived: true,
   });
+
+  const isTransfer = type === "transfer";
 
   const dateRange = toDateRange(dateFrom, dateTo);
   const hasDateRange = !!dateFrom || !!dateTo;
@@ -70,7 +63,6 @@ export function TransactionFilterBar() {
     <div className="flex flex-col gap-2">
       <TransactionFilters
         value={type}
-        // Changing type invalidates the category picked under the old one.
         onChange={(nextType) =>
           onChange({ type: nextType, categoryId: undefined })
         }
@@ -161,9 +153,7 @@ export function TransactionFilterBar() {
             variant="ghost"
             size="icon-lg"
             aria-label="Clear date range"
-            onClick={() =>
-              onChange({ dateFrom: undefined, dateTo: undefined })
-            }
+            onClick={() => onChange({ dateFrom: undefined, dateTo: undefined })}
           >
             <XIcon className="size-4" />
           </Button>

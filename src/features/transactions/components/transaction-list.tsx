@@ -13,23 +13,18 @@ import type { Transaction } from "@/features/transactions/types";
 
 interface TransactionListProps {
   transactions: Transaction[];
-  onEdit: (transaction: Transaction) => void;
   hasMore?: boolean;
   isLoadingMore?: boolean;
   onLoadMore?: () => void;
-  /** Whether any filter is active — picks which empty state to show. */
   hasFilters?: boolean;
-  onClearFilters?: () => void;
 }
 
 export function TransactionList({
   transactions,
-  onEdit,
   hasMore = false,
   isLoadingMore = false,
   onLoadMore,
   hasFilters = false,
-  onClearFilters,
 }: TransactionListProps) {
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -51,12 +46,7 @@ export function TransactionList({
   }, [hasMore, onLoadMore]);
 
   if (transactions.length === 0) {
-    return (
-      <TransactionEmpty
-        hasFilters={hasFilters}
-        onClearFilters={onClearFilters}
-      />
-    );
+    return <TransactionEmpty hasFilters={hasFilters} />;
   }
 
   const groups = groupByDate(transactions);
@@ -83,11 +73,7 @@ export function TransactionList({
           </div>
           <Card className="gap-0 divide-y divide-border py-0">
             {group.items.map((transaction) => (
-              <TransactionRow
-                key={transaction.id}
-                transaction={transaction}
-                onEdit={onEdit}
-              />
+              <TransactionRow key={transaction.id} transaction={transaction} />
             ))}
           </Card>
         </div>

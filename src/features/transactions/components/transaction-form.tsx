@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader, WalletIcon } from "lucide-react";
+import { Loader } from "lucide-react";
 import { VisuallyHidden } from "radix-ui";
 
 import { cn } from "@/lib/utils";
@@ -18,38 +17,32 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { transactionFormSchema, TRANSACTION_TYPES } from "@/features/transactions/schema";
+import {
+  transactionFormSchema,
+  TRANSACTION_TYPES,
+} from "@/features/transactions/schema";
 import { TRANSACTION_TYPE_LABEL } from "@/features/transactions/constants";
 import { useCategories, toCategoryType } from "@/features/categories";
 import { useAccounts } from "@/features/accounts";
 import type {
+  Transaction,
   TransactionFormValues,
   TransactionType,
 } from "@/features/transactions/types";
+import { TransactionEmptyAccount } from "./transaction-empty-account";
+
+const EDITABLE_TYPES = ["expense", "income"] as const;
 
 export function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-/**
- * A factory rather than a constant: `date` must be evaluated when the sheet
- * opens, not once at module load, or a long-lived tab defaults to a stale date.
- * Callers must memoize the result — `TransactionForm` resets on identity change.
- */
 export function emptyTransactionValues(): Partial<TransactionFormValues> {
   return {
     type: "expense",
@@ -62,41 +55,45 @@ export function emptyTransactionValues(): Partial<TransactionFormValues> {
 }
 
 interface TransactionFormProps {
-  title: string;
-  description: string;
-  defaultValues: Partial<TransactionFormValues>;
+  isEdit?: boolean;
+  transaction?: Transaction | null;
   onSubmit: (values: TransactionFormValues) => void;
   isPending?: boolean;
-  submitLabel?: string;
-  /**
-   * Edit mode: an existing transaction may sit on a since-archived account, so
-   * the picker has to list archived ones to resolve its current value.
-   */
-  includeArchivedAccounts?: boolean;
-  /**
-   * Which types this form may produce. Edit mode narrows it: the backend
-   * rejects converting a transaction into or out of a transfer with
-   * TRANSFER_TYPE_IMMUTABLE (409), so the option simply isn't offered.
-   */
-  typeOptions?: readonly TransactionType[];
-  /** Renders the type as a static badge — for editing an immutable transfer. */
-  readOnlyType?: boolean;
-  /** Slot beside the title, e.g. the edit sheet's delete action. */
   headerAction?: React.ReactNode;
 }
 
 export function TransactionForm({
-  title,
-  description,
-  defaultValues,
+  isEdit = false,
+  transaction = null,
   onSubmit,
   isPending = false,
-  submitLabel = "Save",
-  includeArchivedAccounts = false,
-  typeOptions = TRANSACTION_TYPES,
-  readOnlyType = false,
   headerAction,
 }: TransactionFormProps) {
+  const title = isEdit ? "Edit transaction" : "Add transaction";
+  const description = isEdit
+    ? "Update this transaction."
+    : "Record a new expense, income or transfer.";
+  const submitLabel = isEdit ? "Save changes" : "Save";
+
+  const includeArchivedAccounts = isEdit;
+  const typeOptions = isEdit ? EDITABLE_TYPES : TRANSACTION_TYPES;
+  const readOnlyType = isEdit && transaction?.type === "transfer";
+
+  const defaultValues = React.useMemo<Partial<TransactionFormValues>>(() => {
+    if (isEdit && transaction) {
+      return {
+        type: transaction.type,
+        amount: transaction.amount,
+        accountId: transaction.accountId,
+        categoryId: transaction.categoryId ?? "",
+        toAccountId: transaction.toAccountId ?? "",
+        date: transaction.date,
+        description: transaction.description ?? "",
+      };
+    }
+    return emptyTransactionValues();
+  }, [isEdit, transaction]);
+
   const {
     register,
     handleSubmit,
@@ -109,8 +106,6 @@ export function TransactionForm({
     defaultValues,
   });
 
-  // Re-sync the form whenever the caller hands us new default values (e.g.
-  // the edit sheet opening on a different row).
   React.useEffect(() => {
     reset(defaultValues);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,7 +115,6 @@ export function TransactionForm({
   const accountId = useWatch({ control, name: "accountId" });
   const isTransfer = type === "transfer";
 
-  // A transfer has no category, so there's nothing to fetch for one.
   const { data: categories, isLoading: categoriesLoading } = useCategories(
     toCategoryType(type),
   );
@@ -128,48 +122,14 @@ export function TransactionForm({
     includeArchived: includeArchivedAccounts,
   });
 
-  // Both fields are arm-specific, so switching type invalidates whichever was
-  // picked under the old one. `toWritePayload` drops the loser at the boundary
-  // too, but clearing here keeps the UI honest.
   const handleTypeChange = (next: TransactionType) => {
     setValue("type", next);
     setValue("categoryId", "");
     setValue("toAccountId", "");
   };
 
-  // Every transaction needs an account, and registration doesn't create one, so
-  // a new user lands here with nothing to pick. Send them to make one rather
-  // than showing a form that can't be submitted.
-  if (!accountsLoading && accounts?.length === 0) {
-    return (
-      <div className="flex flex-col gap-5 px-5 pt-3 pb-6">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <VisuallyHidden.Root asChild>
-            <DialogDescription>{description}</DialogDescription>
-          </VisuallyHidden.Root>
-        </DialogHeader>
-
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <WalletIcon />
-            </EmptyMedia>
-            <EmptyTitle>Create an account first</EmptyTitle>
-            <EmptyDescription>
-              Transactions are recorded against an account — cash, a bank
-              account, or an e-wallet. Add one to start tracking.
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>
-            <Button asChild size="sm">
-              <Link href="/accounts">Go to accounts</Link>
-            </Button>
-          </EmptyContent>
-        </Empty>
-      </div>
-    );
-  }
+  if (!accountsLoading && accounts?.length === 0)
+    return <TransactionEmptyAccount title={title} description={description} />;
 
   return (
     <form
@@ -186,8 +146,6 @@ export function TransactionForm({
         </VisuallyHidden.Root>
       </DialogHeader>
 
-      {/* Type toggle. Locked when editing a transfer: the backend rejects
-          converting one into or out of a transfer (TRANSFER_TYPE_IMMUTABLE). */}
       {readOnlyType ? (
         <div className="rounded-lg bg-muted p-1">
           <p className="py-2 text-center text-sm font-medium text-muted-foreground">
@@ -221,7 +179,6 @@ export function TransactionForm({
         </div>
       )}
 
-      {/* Amount */}
       <div className="flex flex-col gap-1 py-2">
         <Label>Amount</Label>
         <div className="flex items-center gap-1">
@@ -253,7 +210,6 @@ export function TransactionForm({
         )}
       </div>
 
-      {/* Account (the source, for a transfer) */}
       <div className="grid gap-2">
         <Label htmlFor="accountId">{isTransfer ? "From" : "Account"}</Label>
         <Controller
@@ -277,9 +233,6 @@ export function TransactionForm({
                   <SelectItem
                     key={account.id}
                     value={account.id}
-                    // An archived account stays selectable only where it's
-                    // already the transaction's account; moving onto one would
-                    // be rejected with ACCOUNT_ARCHIVED.
                     disabled={account.isArchived && account.id !== field.value}
                   >
                     {account.name}
@@ -295,8 +248,6 @@ export function TransactionForm({
         )}
       </div>
 
-      {/* Destination account, or category — the two are mutually exclusive, and
-          share this slot so switching type doesn't shift the layout. */}
       {isTransfer ? (
         <div className="grid gap-2">
           <Label htmlFor="toAccountId">To</Label>
@@ -324,8 +275,6 @@ export function TransactionForm({
                     <SelectItem
                       key={account.id}
                       value={account.id}
-                      // Can't transfer to the source (TRANSFER_SAME_ACCOUNT),
-                      // or onto an archived account (ACCOUNT_ARCHIVED).
                       disabled={
                         account.id === accountId ||
                         (account.isArchived && account.id !== field.value)
@@ -393,13 +342,11 @@ export function TransactionForm({
         </div>
       )}
 
-      {/* Date */}
       <div className="grid gap-2">
         <Label htmlFor="date">Date</Label>
         <Input id="date" type="date" {...register("date")} />
       </div>
 
-      {/* Description */}
       <div className="grid gap-2">
         <Label htmlFor="description">Note (optional)</Label>
         <Input
@@ -410,22 +357,9 @@ export function TransactionForm({
         />
       </div>
 
-      <div className="flex w-full justify-center gap-2">
-        <Button
-          type="button"
-          variant="destructive"
-          size="lg"
-          onClick={(e) => {
-            e.stopPropagation();
-            // onDelete(transaction);
-          }}
-        >
-          Delete
-        </Button>
-        <Button type="submit" size="lg" disabled={isPending}>
-          {isPending ? <Loader className="animate-spin" /> : submitLabel}
-        </Button>
-      </div>
+      <Button type="submit" size="lg" disabled={isPending}>
+        {isPending ? <Loader className="animate-spin" /> : submitLabel}
+      </Button>
     </form>
   );
 }

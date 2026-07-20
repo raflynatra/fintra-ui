@@ -7,23 +7,24 @@ import {
   TRANSACTION_TYPE_SIGN,
 } from "@/features/transactions/constants";
 import type { Transaction } from "@/features/transactions/types";
+import { useTransactionStore } from "../store";
 
 interface TransactionRowProps {
   transaction: Transaction;
-  onEdit: (transaction: Transaction) => void;
 }
 
-// The whole row opens the edit sheet; deleting is confirmed from inside it.
-export function TransactionRow({ transaction, onEdit }: TransactionRowProps) {
+export function TransactionRow({ transaction }: TransactionRowProps) {
+  const setFormPayload = useTransactionStore((state) => state.setFormPayload);
+
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={() => onEdit(transaction)}
+      onClick={() => setFormPayload(transaction)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          onEdit(transaction);
+          setFormPayload(transaction);
         }
       }}
       className="flex w-full cursor-pointer items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted"
