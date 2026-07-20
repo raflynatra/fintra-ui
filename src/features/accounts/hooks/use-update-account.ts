@@ -15,8 +15,6 @@ export function useUpdateAccount() {
     }) => apiClient.put<Account>(`/api/accounts/${id}`, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      // A rename changes the account name resolved onto every transaction row,
-      // and an initialBalance edit shifts the balance.
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
     },
   });

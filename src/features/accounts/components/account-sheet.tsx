@@ -11,7 +11,6 @@ import { useAccountStore } from "@/features/accounts/store";
 import { AccountForm } from "@/features/accounts/components/account-form";
 import type { AccountPayload } from "@/features/accounts/types";
 
-/** Edits whatever `editing` holds in the store, or creates when it's null. */
 export function AccountSheet() {
   const account = useAccountStore((state) => state.editing);
   const open = useAccountStore((state) => state.sheetOpen);
@@ -24,9 +23,6 @@ export function AccountSheet() {
   const isPending = createAccount.isPending || updateAccount.isPending;
 
   const handleError = (error: Error, fallbackTitle: string) => {
-    // The unique index covers active rows only, so a rename *or* an un-archive
-    // can collide. It's a field problem, so report it on the field — the global
-    // toast only covers queries anyway.
     if (
       error instanceof ApiClientError &&
       error.code === "ACCOUNT_ALREADY_EXISTS"
@@ -78,7 +74,6 @@ export function AccountSheet() {
       >
         <div className="mx-auto mt-3 h-1.5 w-10 shrink-0 rounded-full bg-border sm:hidden" />
 
-        {/* Remount per account so the form picks up fresh defaults. */}
         <AccountForm
           key={account?.id ?? "new"}
           title={isEdit ? "Edit account" : "Add account"}

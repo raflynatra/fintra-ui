@@ -28,8 +28,6 @@ describe("useAccountStore", () => {
   });
 
   it("openCreate after openEdit clears the previous selection", () => {
-    // Otherwise "Add account" would reopen the last edited one — null is a
-    // meaningful open state, so it has to be reset explicitly.
     useAccountStore.getState().openEdit(account);
     useAccountStore.getState().openCreate();
 

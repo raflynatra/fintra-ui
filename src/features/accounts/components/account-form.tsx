@@ -19,10 +19,7 @@ import { accountSchema, ACCOUNT_TYPES } from "@/features/accounts/schema";
 import { ACCOUNT_TYPE_LABEL } from "@/features/accounts/constants";
 import type { AccountPayload } from "@/features/accounts/types";
 
-/**
- * Renders a signed amount for the input. `formatAmountInput` is digits-only, so
- * the sign is reapplied here — a credit card legitimately starts negative.
- */
+/** Formats a signed amount for the input, preserving a leading minus sign. */
 function formatSignedInput(value: number | undefined): string {
   if (value === undefined || !Number.isFinite(value)) return "";
   const formatted = formatAmountInput(Math.abs(value));
@@ -36,7 +33,6 @@ interface AccountFormProps {
   onSubmit: (values: AccountPayload) => void;
   isPending?: boolean;
   submitLabel?: string;
-  /** Lets the caller surface a backend field error, e.g. a name collision. */
   nameError?: string;
 }
 
@@ -60,8 +56,6 @@ export function AccountForm({
     defaultValues,
   });
 
-  // useWatch, not watch(): watch() returns an unmemoizable function that opts
-  // the whole component out of the React Compiler.
   const type = useWatch({ control, name: "type" });
 
   return (
@@ -76,7 +70,6 @@ export function AccountForm({
         </VisuallyHidden.Root>
       </DialogHeader>
 
-      {/* Name */}
       <div className="grid gap-2">
         <Label htmlFor="name">Name</Label>
         <Input
@@ -94,7 +87,6 @@ export function AccountForm({
         )}
       </div>
 
-      {/* Type */}
       <div className="grid gap-2">
         <Label>Type</Label>
         <div className="grid grid-cols-2 gap-2">
@@ -121,11 +113,12 @@ export function AccountForm({
         )}
       </div>
 
-      {/* Initial balance */}
       <div className="grid gap-2">
         <Label htmlFor="initialBalance">Starting balance (optional)</Label>
         <div className="flex items-center gap-1">
-          <span className="text-lg font-semibold text-muted-foreground">Rp</span>
+          <span className="text-lg font-semibold text-muted-foreground">
+            Rp
+          </span>
           <Controller
             control={control}
             name="initialBalance"
@@ -158,7 +151,8 @@ export function AccountForm({
           </p>
         ) : (
           <p className="text-xs text-muted-foreground">
-            What&apos;s in the account right now. Use a minus sign for money owed.
+            What&apos;s in the account right now. Use a minus sign for money
+            owed.
           </p>
         )}
       </div>

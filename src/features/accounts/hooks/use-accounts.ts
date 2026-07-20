@@ -9,7 +9,6 @@ export function useAccounts({
     queryKey: ["accounts", { includeArchived }],
     queryFn: () =>
       apiClient.get<Account[]>("/api/accounts", {
-        // The backend's enum is the strings "true" | "false", not a boolean.
         params: { includeArchived: String(includeArchived) },
       }),
   });

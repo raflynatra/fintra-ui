@@ -16,7 +16,6 @@ import {
 import { useArchiveAccount } from "@/features/accounts/hooks/use-archive-account";
 import { useAccountStore } from "@/features/accounts/store";
 
-/** Confirms archiving whatever `archiving` holds in the store. */
 export function ArchiveAccountDialog() {
   const account = useAccountStore((state) => state.archiving);
   const setArchiving = useAccountStore((state) => state.setArchiving);
@@ -25,8 +24,6 @@ export function ArchiveAccountDialog() {
   if (!account) return null;
 
   const handleConfirm = (event: React.MouseEvent) => {
-    // Radix closes on click by default; keep it open so the pending state shows
-    // until the mutation settles.
     event.preventDefault();
     archiveAccount.mutate(account.id, {
       onSuccess: () => {

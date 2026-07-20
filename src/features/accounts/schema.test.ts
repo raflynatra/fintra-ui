@@ -17,7 +17,6 @@ describe("accountSchema", () => {
   });
 
   it("accepts a negative starting balance", () => {
-    // A credit card legitimately starts in debt.
     const result = accountSchema.safeParse({
       name: "Visa",
       type: "credit_card",

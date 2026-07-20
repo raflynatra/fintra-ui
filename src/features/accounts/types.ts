@@ -8,7 +8,6 @@ export interface Account {
   name: string;
   type: AccountType;
   initialBalance: number;
-  /** initialBalance plus every movement in or out; derived server-side. */
   balance: number;
   isArchived: boolean;
   createdAt: string;
@@ -24,12 +23,7 @@ export type AccountUpdatePayload = z.infer<typeof accountUpdateSchema>;
 
 export interface AccountUIState {
   sheetOpen: boolean;
-  /**
-   * The account the sheet is editing, or null for create mode. `sheetOpen` is
-   * separate because null is a meaningful *open* state, not a closed one.
-   */
   editing: Account | null;
-  /** The account pending archive confirmation. */
   archiving: Account | null;
   openCreate: () => void;
   openEdit: (account: Account) => void;

@@ -7,8 +7,6 @@ import {
 } from "lucide-react";
 import type { AccountType } from "./types";
 
-// Keyed by AccountType so a new backend account type fails the build here
-// rather than rendering a blank label or a missing icon.
 export const ACCOUNT_TYPE_LABEL: Record<AccountType, string> = {
   cash: "Cash",
   bank: "Bank",

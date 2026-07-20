@@ -12,13 +12,12 @@ import {
   AccountList,
   AccountSheet,
   AccountEmpty,
+  AccountsSummary,
   ArchiveAccountDialog,
 } from "@/features/accounts/components";
 import type { Account } from "@/features/accounts/types";
 
 export default function AccountsPage() {
-  // Archived accounts are listed too (dimmed, under their own heading) so they
-  // stay restorable — there's no other route back.
   const { data: accounts, isLoading } = useAccounts({ includeArchived: true });
   const updateAccount = useUpdateAccount();
 
@@ -31,7 +30,6 @@ export default function AccountsPage() {
       { id: account.id, payload: { isArchived: false } },
       {
         onSuccess: () => toast.success(`${account.name} has been restored`),
-        // Un-archiving can collide with an active account of the same name.
         onError: (error) =>
           toast.error("Couldn't restore account", {
             description: error.message,
@@ -40,8 +38,6 @@ export default function AccountsPage() {
     );
   };
 
-  // Derived from the mutation rather than tracked alongside it — one less piece
-  // of state that could disagree with reality.
   const restoringId = updateAccount.isPending
     ? updateAccount.variables?.id
     : undefined;
@@ -67,13 +63,16 @@ export default function AccountsPage() {
       ) : !accounts?.length ? (
         <AccountEmpty onAdd={openCreate} />
       ) : (
-        <AccountList
-          accounts={accounts}
-          onEdit={openEdit}
-          onArchive={setArchiving}
-          onRestore={handleRestore}
-          restoringId={restoringId}
-        />
+        <>
+          <AccountsSummary accounts={accounts} />
+          <AccountList
+            accounts={accounts}
+            onEdit={openEdit}
+            onArchive={setArchiving}
+            onRestore={handleRestore}
+            restoringId={restoringId}
+          />
+        </>
       )}
 
       <AccountSheet />
