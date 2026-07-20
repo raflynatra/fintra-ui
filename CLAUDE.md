@@ -34,6 +34,45 @@ This repo is **mobile-first**. Design and build UI for small viewports first (to
 - `src/proxy.ts` runs on protected/auth routes: redirects based on the presence of `refresh_token`, refreshes the access token server-side, and forwards it via the `x-access-token` header.
 - `src/lib/api-client.ts` attaches the bearer token, and on a 401 attempts one silent refresh-and-retry before signing out. It distinguishes an _invalid/expired session_ (sign out, redirect to `/login`) from a _backend-unreachable_ error (keep the session, surface a toast) — don't collapse that distinction when touching auth/fetch code.
 
+## Baseline feature: `transactions`
+
+`src/features/transactions` is the reference implementation. When adding or
+changing a feature, mirror its structure, layering, and conventions.
+
+**File layout** (one concern per file):
+
+- `types.ts` — all interfaces/types for the feature. Derive form value types from
+  the Zod schema (`z.infer<typeof …>`), don't hand-write them twice. Model
+  on-the-wire request bodies as discriminated unions when the backend uses `oneOf`.
+- `schema.ts` — Zod. Keep **one flat `z.object` field set** for react-hook-form
+  (not `z.discriminatedUnion` — a union breaks RHF field paths and `.partial()`).
+  Put conditional/cross-field rules in `.superRefine`. Mirror backend validation
+  client-side so common errors don't round-trip.
+- `constants.ts` — lookup maps keyed by the feature's union type
+  (`Record<TransactionType, string>`), not scattered conditionals.
+- `store.ts` — Zustand (`create()(devtools(…, { name }))`) for **client/UI state
+  only** (filters, which row is being edited). Never cache server data here.
+- `hooks/` — **one hook per file, one operation.** Queries use TanStack Query
+  (`use-transactions.ts`), mutations return `useMutation` and invalidate every
+  affected query key in `onSuccess` (e.g. a transaction mutation invalidates both
+  `["transactions"]` and `["accounts"]`).
+- `utils.ts` — pure helpers, unit-tested. The form→wire transform
+  (`toWritePayload`) lives here and is called **inside** the mutation hook, so no
+  call site can forget it and post a stale field.
+- `components/` — presentational + container components; `index.ts` barrel exports
+  the feature's **deliberate public surface** (omit internal-only components).
+
+**Layering rules:**
+
+- Server state → TanStack Query hooks. Client state → Zustand store. Don't mix.
+- Forms: react-hook-form + `zodResolver`, one flat field set; narrow to the
+  arm-specific wire shape at the mutation boundary, never in the form.
+- Side effects that belong to a call site (toasts, closing a sheet) live in the
+  component, not the hook. Hooks stay reusable and effect-free beyond cache
+  invalidation.
+- Only add comments as a docummentation (JSDoc only).
+- Colocate tests: `schema.test.ts`, `store.test.ts`, `utils.test.ts`.
+
 ## Conventions
 
 - Path alias `@/*` → `src/*`.
@@ -51,3 +90,11 @@ This repo is **mobile-first**. Design and build UI for small viewports first (to
 - Prefer async/await over .then() chains
 - Use early returns for cleaner code
 - Keep components small and focused
+
+## Commits
+
+- One-line messages only — no body.
+- Conventional-commit style with an optional scope: `type(scope): summary`
+  (e.g. `feat(transactions): add transfer type`, `refactor(api): centralize proxy handlers`).
+  Omit the scope when it doesn't add clarity.
+- **No `Co-Authored-By` trailer** and no other trailers.
