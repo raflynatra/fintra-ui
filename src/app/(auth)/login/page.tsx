@@ -10,8 +10,10 @@ export default function LoginPage() {
           <Image
             src="/fintra-logo.png"
             alt="app's logo"
-            width={150}
-            height={50}
+            width={585}
+            height={180}
+            priority
+            className="h-auto w-[150px]"
           />
         </div>
         <LoginHeader />
