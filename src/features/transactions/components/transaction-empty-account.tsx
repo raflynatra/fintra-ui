@@ -16,6 +16,8 @@ import { WalletIcon } from "lucide-react";
 import Link from "next/link";
 import { VisuallyHidden } from "radix-ui";
 
+import { APP_ROUTES } from "@/lib/constants";
+
 interface TransactionEmptyAccountProps {
   title: string;
   description: string;
@@ -47,7 +49,7 @@ export function TransactionEmptyAccount({
         </EmptyHeader>
         <EmptyContent>
           <Button asChild size="sm">
-            <Link href="/accounts">Go to accounts</Link>
+            <Link href={APP_ROUTES.accounts}>Go to accounts</Link>
           </Button>
         </EmptyContent>
       </Empty>

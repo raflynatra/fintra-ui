@@ -2,8 +2,8 @@
 export const APP_ROUTES = {
   login: "/login",
   dashboard: "/dashboard",
+  accounts: "/dashboard/accounts",
   transactions: "/transactions",
-  accounts: "/accounts",
   reports: "/reports",
   settings: "/settings",
 } as const;

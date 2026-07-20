@@ -10,7 +10,8 @@ import { useUpdateAccount } from "@/features/accounts/hooks/use-update-account";
 import { useAccountStore } from "@/features/accounts/store";
 import {
   AccountList,
-  AccountSheet,
+  AddAccountSheet,
+  EditAccountSheet,
   AccountEmpty,
   AccountsSummary,
   ArchiveAccountDialog,
@@ -21,8 +22,7 @@ export default function AccountsPage() {
   const { data: accounts, isLoading } = useAccounts({ includeArchived: true });
   const updateAccount = useUpdateAccount();
 
-  const openCreate = useAccountStore((state) => state.openCreate);
-  const openEdit = useAccountStore((state) => state.openEdit);
+  const setFormPayload = useAccountStore((state) => state.setFormPayload);
   const setArchiving = useAccountStore((state) => state.setArchiving);
 
   const handleRestore = (account: Account) => {
@@ -43,14 +43,18 @@ export default function AccountsPage() {
     : undefined;
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-2xl font-bold">Accounts</h2>
         {!!accounts?.length && (
-          <Button type="button" size="sm" onClick={openCreate}>
-            <PlusIcon className="size-4" />
-            Add account
-          </Button>
+          <AddAccountSheet
+            trigger={
+              <Button type="button" size="sm">
+                <PlusIcon className="size-4" />
+                Add account
+              </Button>
+            }
+          />
         )}
       </div>
 
@@ -61,21 +65,25 @@ export default function AccountsPage() {
           ))}
         </div>
       ) : !accounts?.length ? (
-        <AccountEmpty onAdd={openCreate} />
+        <AccountEmpty />
       ) : (
-        <>
-          <AccountsSummary accounts={accounts} />
-          <AccountList
-            accounts={accounts}
-            onEdit={openEdit}
-            onArchive={setArchiving}
-            onRestore={handleRestore}
-            restoringId={restoringId}
-          />
-        </>
+        <div className="flex flex-col gap-4 lg:flex-row-reverse lg:items-start lg:gap-6">
+          <aside className="flex flex-col gap-4 lg:sticky lg:top-6 lg:w-2/5 lg:shrink-0">
+            <AccountsSummary accounts={accounts} />
+          </aside>
+          <div className="min-w-0 flex-1 lg:w-3/5">
+            <AccountList
+              accounts={accounts}
+              onEdit={setFormPayload}
+              onArchive={setArchiving}
+              onRestore={handleRestore}
+              restoringId={restoringId}
+            />
+          </div>
+        </div>
       )}
 
-      <AccountSheet />
+      <EditAccountSheet />
       <ArchiveAccountDialog />
     </div>
   );
