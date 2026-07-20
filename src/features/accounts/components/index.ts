@@ -1,5 +1,6 @@
 export { AccountForm } from "./account-form";
-export { AccountSheet } from "./account-sheet";
+export { AddAccountSheet } from "./add-account-sheet";
+export { EditAccountSheet } from "./edit-account-sheet";
 export { AccountRow } from "./account-row";
 export { AccountSummaryCard } from "./account-summary-card";
 export { AccountTotalCard } from "./account-total-card";

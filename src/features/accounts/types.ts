@@ -22,11 +22,9 @@ export type AccountPayload = z.infer<typeof accountSchema>;
 export type AccountUpdatePayload = z.infer<typeof accountUpdateSchema>;
 
 export interface AccountUIState {
-  sheetOpen: boolean;
-  editing: Account | null;
+  formPayload: Account | null;
   archiving: Account | null;
-  openCreate: () => void;
-  openEdit: (account: Account) => void;
-  setSheetOpen: (open: boolean) => void;
+  setFormPayload: (account: Account) => void;
+  resetFormPayload: () => void;
   setArchiving: (account: Account | null) => void;
 }

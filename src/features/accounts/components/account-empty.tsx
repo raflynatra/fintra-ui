@@ -11,12 +11,9 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { AddAccountSheet } from "@/features/accounts/components/add-account-sheet";
 
-interface AccountEmptyProps {
-  onAdd: () => void;
-}
-
-export function AccountEmpty({ onAdd }: AccountEmptyProps) {
+export function AccountEmpty() {
   return (
     <Empty>
       <EmptyHeader>
@@ -30,10 +27,14 @@ export function AccountEmpty({ onAdd }: AccountEmptyProps) {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button type="button" size="sm" onClick={onAdd}>
-          <PlusIcon className="size-4" />
-          Add account
-        </Button>
+        <AddAccountSheet
+          trigger={
+            <Button type="button" size="sm">
+              <PlusIcon className="size-4" />
+              Add account
+            </Button>
+          }
+        />
       </EmptyContent>
     </Empty>
   );

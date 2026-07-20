@@ -6,41 +6,23 @@ const account = { id: "a1", name: "Cash", type: "cash" } as Account;
 
 describe("useAccountStore", () => {
   beforeEach(() => {
-    useAccountStore.setState({
-      sheetOpen: false,
-      editing: null,
-      archiving: null,
-    });
+    useAccountStore.setState({ formPayload: null, archiving: null });
   });
 
-  it("openCreate opens the sheet with no account to edit", () => {
-    useAccountStore.getState().openCreate();
+  it("setFormPayload selects an account and resetFormPayload clears it", () => {
+    useAccountStore.getState().setFormPayload(account);
+    expect(useAccountStore.getState().formPayload).toBe(account);
 
-    expect(useAccountStore.getState().sheetOpen).toBe(true);
-    expect(useAccountStore.getState().editing).toBeNull();
+    useAccountStore.getState().resetFormPayload();
+    expect(useAccountStore.getState().formPayload).toBeNull();
   });
 
-  it("openEdit opens the sheet on the given account", () => {
-    useAccountStore.getState().openEdit(account);
-
-    expect(useAccountStore.getState().sheetOpen).toBe(true);
-    expect(useAccountStore.getState().editing).toBe(account);
-  });
-
-  it("openCreate after openEdit clears the previous selection", () => {
-    useAccountStore.getState().openEdit(account);
-    useAccountStore.getState().openCreate();
-
-    expect(useAccountStore.getState().editing).toBeNull();
-    expect(useAccountStore.getState().sheetOpen).toBe(true);
-  });
-
-  it("setSheetOpen(false) closes without disturbing the archive target", () => {
+  it("resetFormPayload leaves the archive target untouched", () => {
     useAccountStore.getState().setArchiving(account);
-    useAccountStore.getState().openCreate();
-    useAccountStore.getState().setSheetOpen(false);
+    useAccountStore.getState().setFormPayload(account);
+    useAccountStore.getState().resetFormPayload();
 
-    expect(useAccountStore.getState().sheetOpen).toBe(false);
+    expect(useAccountStore.getState().formPayload).toBeNull();
     expect(useAccountStore.getState().archiving).toBe(account);
   });
 
