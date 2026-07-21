@@ -49,15 +49,18 @@ export interface TransactionListResult {
 
 export type TransactionFilterValues = Pick<
   TransactionListParams,
-  "type" | "categoryId" | "accountId" | "dateFrom" | "dateTo"
+  "type" | "categoryId" | "accountId"
 >;
 
 export type TransactionQueryParams = Omit<TransactionListParams, "page">;
 
 export interface TransactionUIState {
   params: TransactionQueryParams;
+  /** The selected period as "YYYY-MM". */
+  month: string;
   formPayload: Transaction | null;
   setFilters: (next: TransactionFilterValues) => void;
+  setMonth: (month: string) => void;
   clearFilters: () => void;
   setFormPayload: (transaction: Transaction) => void;
   resetFormPayload: () => void;

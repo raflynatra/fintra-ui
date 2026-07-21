@@ -32,6 +32,15 @@ export function formatTransactionDate(value: string): string {
   });
 }
 
+/** Formats a "YYYY-MM" period for display, e.g. "July 2026". */
+export function formatMonth(value: string): string {
+  const [year, month] = value.split("-").map(Number);
+  return new Date(year, month - 1, 1).toLocaleDateString("en-GB", {
+    month: "long",
+    year: "numeric",
+  });
+}
+
 /** Formats a "YYYY-MM-DD" transaction date's weekday, e.g. "Tue". */
 export function formatTransactionWeekday(value: string): string {
   const [year, month, day] = value.split("-").map(Number);

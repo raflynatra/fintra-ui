@@ -1,9 +1,11 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTransactions } from "@/features/transactions/hooks/use-transactions";
 import { useTransactionStore } from "@/features/transactions/store";
-import { hasActiveFilters } from "@/features/transactions/utils";
+import { hasActiveFilters, toQueryParams } from "@/features/transactions/utils";
 import {
   TransactionList,
   TransactionFilterBar,
@@ -13,9 +15,15 @@ import {
 
 export default function TransactionsPage() {
   const params = useTransactionStore((state) => state.params);
+  const month = useTransactionStore((state) => state.month);
+
+  const queryParams = useMemo(
+    () => toQueryParams(params, month),
+    [params, month],
+  );
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useTransactions(params);
+    useTransactions(queryParams);
 
   const transactions = data?.pages.flatMap((page) => page.transactions) ?? [];
 
@@ -25,7 +33,7 @@ export default function TransactionsPage() {
 
       <div className="flex flex-col gap-4 lg:flex-row-reverse lg:items-start lg:gap-6">
         <aside className="flex flex-col gap-4 lg:sticky lg:top-6 lg:w-2/5 lg:shrink-0">
-          <TransactionSummary params={params} />
+          <TransactionSummary params={queryParams} />
           <TransactionFilterBar />
         </aside>
 

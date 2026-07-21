@@ -10,7 +10,11 @@ const transaction = {
 
 describe("useTransactionStore", () => {
   beforeEach(() => {
-    useTransactionStore.setState({ params: { size: 10 }, formPayload: null });
+    useTransactionStore.setState({
+      params: { size: 10 },
+      month: "2026-07",
+      formPayload: null,
+    });
   });
 
   describe("filters", () => {
@@ -37,13 +41,28 @@ describe("useTransactionStore", () => {
         type: "income",
         categoryId: "c1",
         accountId: "a1",
-        dateFrom: "2026-07-01",
-        dateTo: "2026-07-31",
       });
 
       useTransactionStore.getState().clearFilters();
 
       expect(useTransactionStore.getState().params).toEqual({ size: 10 });
+    });
+  });
+
+  describe("month", () => {
+    it("setMonth replaces the period without touching the filters", () => {
+      useTransactionStore.getState().setFilters({ type: "income" });
+      useTransactionStore.getState().setMonth("2026-05");
+
+      expect(useTransactionStore.getState().month).toBe("2026-05");
+      expect(useTransactionStore.getState().params.type).toBe("income");
+    });
+
+    it("clearFilters keeps you in the month you are reading", () => {
+      useTransactionStore.getState().setMonth("2026-05");
+      useTransactionStore.getState().clearFilters();
+
+      expect(useTransactionStore.getState().month).toBe("2026-05");
     });
   });
 

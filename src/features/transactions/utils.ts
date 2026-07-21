@@ -1,4 +1,11 @@
-import { isToday, isYesterday, parseISO } from "date-fns";
+import {
+  addMonths,
+  endOfMonth,
+  format,
+  isToday,
+  isYesterday,
+  parseISO,
+} from "date-fns";
 
 import { formatTransactionDate, formatTransactionWeekday } from "@/lib/format";
 import type {
@@ -9,15 +16,49 @@ import type {
   TransactionWritePayload,
 } from "@/features/transactions/types";
 
-/** Whether any narrowing filter (excluding page size) is active. */
+/**
+ * How many narrowing filters are active. Page size is a display preference and
+ * the period is always set, so neither counts as a filter.
+ */
+export function activeFilterCount(params: TransactionQueryParams): number {
+  return [params.type, params.categoryId, params.accountId].filter(Boolean)
+    .length;
+}
+
+/** Whether the list is narrowed by anything the user can clear. */
 export function hasActiveFilters(params: TransactionQueryParams): boolean {
-  return !!(
-    params.type ||
-    params.categoryId ||
-    params.accountId ||
-    params.dateFrom ||
-    params.dateTo
-  );
+  return activeFilterCount(params) > 0;
+}
+
+/** The current period as "YYYY-MM". */
+export function currentMonth(): string {
+  return format(new Date(), "yyyy-MM");
+}
+
+/** Moves a "YYYY-MM" period by whole months, crossing year boundaries. */
+export function shiftMonth(month: string, delta: number): string {
+  return format(addMonths(parseISO(`${month}-01`), delta), "yyyy-MM");
+}
+
+/** Expands a "YYYY-MM" period into the inclusive date range it covers. */
+export function monthRange(month: string): {
+  dateFrom: string;
+  dateTo: string;
+} {
+  const start = parseISO(`${month}-01`);
+
+  return {
+    dateFrom: format(start, "yyyy-MM-dd"),
+    dateTo: format(endOfMonth(start), "yyyy-MM-dd"),
+  };
+}
+
+/** Combines the active filters with the selected period into wire params. */
+export function toQueryParams(
+  params: TransactionQueryParams,
+  month: string,
+): TransactionQueryParams {
+  return { ...params, ...monthRange(month) };
 }
 
 /** Builds the arm-specific write payload from form values. */
@@ -38,6 +79,7 @@ export function toWritePayload(
   return { ...base, type: values.type, categoryId: values.categoryId };
 }
 
+/** Serializes params for the query string, dropping keys that are unset. */
 export function toStringParams(
   params: TransactionListParams,
 ): Record<string, string> {
@@ -50,6 +92,7 @@ export function toStringParams(
   return result;
 }
 
+/** Builds a day heading, preferring "Today"/"Yesterday" over the weekday. */
 export function groupLabel(date: string) {
   const parsed = parseISO(date);
   const weekday = isToday(parsed)
@@ -61,6 +104,7 @@ export function groupLabel(date: string) {
   return { weekday, date: formatTransactionDate(date) };
 }
 
+/** Sums income and expense. Transfers move money without changing net worth. */
 export function groupTotals(items: Transaction[]) {
   let totalIncome = 0;
   let totalExpense = 0;
@@ -73,6 +117,7 @@ export function groupTotals(items: Transaction[]) {
   return { totalIncome, totalExpense };
 }
 
+/** Groups transactions into day sections, preserving the server's ordering. */
 export function groupByDate(transactions: Transaction[]) {
   const groups = new Map<string, Transaction[]>();
 

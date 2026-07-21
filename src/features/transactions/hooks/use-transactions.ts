@@ -6,6 +6,10 @@ import type {
   TransactionListResult,
 } from "@/features/transactions/types";
 
+/**
+ * Pages through transactions matching `params`, which is also the query key —
+ * pass a stable reference or every render refetches from page 1.
+ */
 export function useTransactions(params: Omit<TransactionListParams, "page">) {
   return useInfiniteQuery({
     queryKey: ["transactions", params],

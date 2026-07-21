@@ -1,5 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { groupTotals, hasActiveFilters, toWritePayload } from "./utils";
+import {
+  activeFilterCount,
+  groupTotals,
+  hasActiveFilters,
+  monthRange,
+  shiftMonth,
+  toQueryParams,
+  toWritePayload,
+} from "./utils";
 import type { Transaction, TransactionFormValues } from "./types";
 
 const ACCOUNT = "11111111-1111-4111-8111-111111111111";
@@ -66,10 +74,63 @@ describe("hasActiveFilters", () => {
     ["type", { type: "expense" as const }],
     ["categoryId", { categoryId: "c1" }],
     ["accountId", { accountId: "a1" }],
-    ["dateFrom", { dateFrom: "2026-07-01" }],
-    ["dateTo", { dateTo: "2026-07-31" }],
   ])("is true when %s is set", (_label, filter) => {
     expect(hasActiveFilters({ size: 10, ...filter })).toBe(true);
+  });
+
+  it("ignores the period — a month is always selected, not a filter", () => {
+    expect(
+      hasActiveFilters({
+        size: 10,
+        dateFrom: "2026-07-01",
+        dateTo: "2026-07-31",
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("activeFilterCount", () => {
+  it("counts each active filter once", () => {
+    expect(
+      activeFilterCount({ size: 10, type: "expense", accountId: "a1" }),
+    ).toBe(2);
+  });
+
+  it("is zero for a period-only view", () => {
+    expect(activeFilterCount({ size: 10, dateFrom: "2026-07-01" })).toBe(0);
+  });
+});
+
+describe("shiftMonth", () => {
+  it.each([
+    ["2026-07", -1, "2026-06"],
+    ["2026-07", 1, "2026-08"],
+    ["2026-01", -1, "2025-12"],
+    ["2026-12", 1, "2027-01"],
+  ])("shifts %s by %i to %s", (month, delta, expected) => {
+    expect(shiftMonth(month, delta)).toBe(expected);
+  });
+});
+
+describe("monthRange", () => {
+  it.each([
+    ["2026-07", "2026-07-01", "2026-07-31"],
+    ["2026-04", "2026-04-01", "2026-04-30"],
+    ["2026-02", "2026-02-01", "2026-02-28"],
+    ["2024-02", "2024-02-01", "2024-02-29"],
+  ])("expands %s to %s – %s", (month, dateFrom, dateTo) => {
+    expect(monthRange(month)).toEqual({ dateFrom, dateTo });
+  });
+});
+
+describe("toQueryParams", () => {
+  it("merges the period into the active filters", () => {
+    expect(toQueryParams({ size: 10, type: "income" }, "2026-07")).toEqual({
+      size: 10,
+      type: "income",
+      dateFrom: "2026-07-01",
+      dateTo: "2026-07-31",
+    });
   });
 });
 
