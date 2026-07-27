@@ -5,5 +5,7 @@ export { BudgetList } from "./budget-list";
 export { BudgetEmpty } from "./budget-empty";
 export { BudgetSummary } from "./budget-summary";
 export { BudgetBar, BudgetMeter } from "./budget-meter";
+export { BudgetBreakdownCard } from "./budget-breakdown-card";
+export { BudgetAttentionCard } from "./budget-attention-card";
 export { BudgetNotFound } from "./budget-not-found";
 export { BudgetTransactionsEmpty } from "./budget-transactions-empty";

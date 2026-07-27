@@ -16,6 +16,14 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+  --color-viz-remainder: var(--viz-remainder);
+  --color-viz-7: var(--viz-7);
+  --color-viz-6: var(--viz-6);
+  --color-viz-5: var(--viz-5);
+  --color-viz-4: var(--viz-4);
+  --color-viz-3: var(--viz-3);
+  --color-viz-2: var(--viz-2);
+  --color-viz-1: var(--viz-1);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -115,6 +123,36 @@
   --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.56 0.021 213.5);
+}
+
+/**
+ * Categorical data-viz slots, for encoding identity (one hue per series).
+ * Distinct from --chart-1..5, which are a single-hue green ramp and therefore
+ * only suitable for sequential magnitude. Assigned in fixed order and never
+ * cycled. Both modes are selected steps, validated against this app's card
+ * surfaces (#ffffff / #161b1d); the light steps sit below 3:1 contrast, so any
+ * chart using them must carry visible labels or a table view.
+ */
+:root {
+  --viz-1: #2a78d6;
+  --viz-2: #eb6834;
+  --viz-3: #1baf7a;
+  --viz-4: #eda100;
+  --viz-5: #e87ba4;
+  --viz-6: #008300;
+  --viz-7: #4a3aa7;
+  --viz-remainder: oklch(0.723 0.014 214.4);
+}
+
+.dark {
+  --viz-1: #3987e5;
+  --viz-2: #d95926;
+  --viz-3: #199e70;
+  --viz-4: #c98500;
+  --viz-5: #d55181;
+  --viz-6: #008300;
+  --viz-7: #9085e9;
+  --viz-remainder: oklch(0.56 0.021 213.5);
 }
 
 @layer base {

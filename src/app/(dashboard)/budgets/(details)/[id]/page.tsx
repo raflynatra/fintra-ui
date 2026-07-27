@@ -104,13 +104,7 @@ export default function BudgetDetailPage({
             </div>
           </div>
 
-          <BudgetMeter
-            spent={budget.spent}
-            amount={budget.amount}
-            remaining={budget.remaining}
-            percentUsed={budget.percentUsed}
-            isOverBudget={budget.isOverBudget}
-          />
+          <BudgetMeter budget={budget} />
         </CardContent>
       </Card>
 

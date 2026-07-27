@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/format";
 import { Card, CardContent } from "@/components/ui/card";
-import { budgetTotals } from "@/features/budgets/utils";
+import { budgetTotals, monthElapsedPercent } from "@/features/budgets/utils";
 import { BudgetBar } from "@/features/budgets/components/budget-meter";
 import type { BudgetProgress } from "@/features/budgets/types";
 
@@ -18,6 +18,11 @@ export function BudgetSummary({ budgets }: BudgetSummaryProps) {
   const remaining = budgeted - spent;
   const percentUsed = budgeted > 0 ? (spent / budgeted) * 100 : 0;
   const isOverBudget = spent > budgeted;
+
+  // The rollup has no period of its own; every budget it sums shares one.
+  const pacePercent = budgets.length
+    ? monthElapsedPercent(budgets[0].periodStart, new Date())
+    : null;
 
   return (
     <Card size="sm">
@@ -42,7 +47,11 @@ export function BudgetSummary({ budgets }: BudgetSummaryProps) {
         </div>
 
         <div className="flex flex-col gap-2 border-t pt-4">
-          <BudgetBar percentUsed={percentUsed} isOverBudget={isOverBudget} />
+          <BudgetBar
+            percentUsed={percentUsed}
+            isOverBudget={isOverBudget}
+            pacePercent={pacePercent}
+          />
 
           <p
             className={cn(

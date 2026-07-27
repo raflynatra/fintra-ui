@@ -10,18 +10,16 @@ import { useBudgetStore } from "@/features/budgets/store";
 import { hasOverallBudget, toPeriodStart } from "@/features/budgets/utils";
 import {
   AddBudgetSheet,
+  BudgetAttentionCard,
+  BudgetBreakdownCard,
   BudgetEmpty,
   BudgetList,
   BudgetSummary,
-  DeleteBudgetDialog,
-  EditBudgetSheet,
 } from "@/features/budgets/components";
 
 export default function BudgetsPage() {
   const month = useBudgetStore((state) => state.month);
   const setMonth = useBudgetStore((state) => state.setMonth);
-  const setFormPayload = useBudgetStore((state) => state.setFormPayload);
-  const setDeleting = useBudgetStore((state) => state.setDeleting);
 
   const { data: budgets, isLoading } = useBudgetProgress(toPeriodStart(month));
 
@@ -41,11 +39,22 @@ export default function BudgetsPage() {
         )}
       </div>
 
-      <div className="flex flex-col gap-4 lg:flex-row-reverse lg:items-start lg:gap-6">
+      <MonthNav value={month} onChange={setMonth} />
+
+      {/*
+        Column-reverse on mobile puts the budgets themselves above the insight
+        cards; the same DOM order keeps the rail on the right at desktop.
+      */}
+      <div className="flex flex-col-reverse gap-4 lg:flex-row-reverse lg:items-start lg:gap-6">
         <aside className="flex flex-col gap-4 lg:sticky lg:top-6 lg:w-2/5 lg:shrink-0">
-          <MonthNav value={month} onChange={setMonth} />
           {!!budgets?.length && !hasOverallBudget(budgets) && (
             <BudgetSummary budgets={budgets} />
+          )}
+          {!!budgets?.length && (
+            <>
+              <BudgetAttentionCard budgets={budgets} />
+              <BudgetBreakdownCard budgets={budgets} />
+            </>
           )}
         </aside>
 
@@ -59,17 +68,10 @@ export default function BudgetsPage() {
           ) : !budgets?.length ? (
             <BudgetEmpty />
           ) : (
-            <BudgetList
-              budgets={budgets}
-              onEdit={setFormPayload}
-              onDelete={setDeleting}
-            />
+            <BudgetList budgets={budgets} />
           )}
         </div>
       </div>
-
-      <EditBudgetSheet />
-      <DeleteBudgetDialog />
     </div>
   );
 }

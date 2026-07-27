@@ -29,6 +29,26 @@ export interface BudgetListParams {
   periodStart?: string;
 }
 
+/** One slice of the month's spending, for the breakdown bar. */
+export interface SpendSegment {
+  /** Category name, or the label for spending outside every budget. */
+  label: string;
+  amount: number;
+  /** Fraction of the month's spending, 0–1. */
+  share: number;
+  /** The remainder slice, styled apart from the real categories. */
+  isRemainder?: boolean;
+}
+
+/** How much a budget allows per remaining day, and whether spending is on track. */
+export interface SpendingPace {
+  daysRemaining: number;
+  perDay: number;
+  /** What an even burn rate would have spent by today. */
+  expectedByNow: number;
+  isOnTrack: boolean;
+}
+
 export type BudgetPayload = z.infer<typeof budgetSchema>;
 export type BudgetUpdatePayload = z.infer<typeof budgetUpdateSchema>;
 

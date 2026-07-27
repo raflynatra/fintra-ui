@@ -12,11 +12,18 @@ export {
   sortBudgets,
   budgetTotals,
   hasOverallBudget,
+  unbudgetedSpend,
+  spendBreakdown,
+  budgetsNeedingAttention,
+  spendingPace,
+  monthElapsedPercent,
 } from "./utils";
 export { OVERALL_BUDGET_LABEL, OVERALL_BUDGET_VALUE } from "./constants";
 export type {
   Budget,
   BudgetProgress,
+  SpendSegment,
+  SpendingPace,
   BudgetListParams,
   BudgetPayload,
   BudgetUpdatePayload,

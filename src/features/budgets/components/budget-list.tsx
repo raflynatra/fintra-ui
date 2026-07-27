@@ -6,20 +6,13 @@ import type { BudgetProgress } from "@/features/budgets/types";
 
 interface BudgetListProps {
   budgets: BudgetProgress[];
-  onEdit: (budget: BudgetProgress) => void;
-  onDelete: (budget: BudgetProgress) => void;
 }
 
-export function BudgetList({ budgets, onEdit, onDelete }: BudgetListProps) {
+export function BudgetList({ budgets }: BudgetListProps) {
   return (
     <div className="flex flex-col gap-2">
       {sortBudgets(budgets).map((budget) => (
-        <BudgetRow
-          key={budget.id}
-          budget={budget}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
+        <BudgetRow key={budget.id} budget={budget} />
       ))}
     </div>
   );
