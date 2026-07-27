@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/format";
 import { Card, CardContent } from "@/components/ui/card";
-import { barWidth, budgetTotals } from "@/features/budgets/utils";
+import { budgetTotals } from "@/features/budgets/utils";
+import { BudgetBar } from "@/features/budgets/components/budget-meter";
 import type { BudgetProgress } from "@/features/budgets/types";
 
 interface BudgetSummaryProps {
@@ -41,15 +42,7 @@ export function BudgetSummary({ budgets }: BudgetSummaryProps) {
         </div>
 
         <div className="flex flex-col gap-2 border-t pt-4">
-          <div className="h-2 overflow-hidden rounded-full bg-muted">
-            <div
-              className={cn(
-                "h-full rounded-full",
-                isOverBudget ? "bg-destructive" : "bg-primary",
-              )}
-              style={{ width: `${barWidth(percentUsed)}%` }}
-            />
-          </div>
+          <BudgetBar percentUsed={percentUsed} isOverBudget={isOverBudget} />
 
           <p
             className={cn(

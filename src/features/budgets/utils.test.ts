@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { barWidth, budgetTotals, sortBudgets, toPeriodStart } from "./utils";
+import {
+  barWidth,
+  budgetTotals,
+  hasOverallBudget,
+  sortBudgets,
+  toPeriodStart,
+  toTransactionFilters,
+} from "./utils";
 import type { BudgetProgress } from "./types";
 
 function budget(overrides: Partial<BudgetProgress>): BudgetProgress {
@@ -23,6 +30,38 @@ function budget(overrides: Partial<BudgetProgress>): BudgetProgress {
 describe("toPeriodStart", () => {
   it("expands a period to the first of the month the backend normalizes to", () => {
     expect(toPeriodStart("2026-07")).toBe("2026-07-01");
+  });
+});
+
+describe("toTransactionFilters", () => {
+  it("mirrors the backend's spend query for a category budget", () => {
+    expect(toTransactionFilters(budget({}))).toEqual({
+      type: "expense",
+      categoryId: "33333333-3333-4333-8333-333333333333",
+      dateFrom: "2026-07-01",
+      dateTo: "2026-07-31",
+    });
+  });
+
+  it("omits categoryId for the overall budget — every expense counts", () => {
+    const filters = toTransactionFilters(budget({ categoryId: null }));
+
+    expect(filters).toEqual({
+      type: "expense",
+      dateFrom: "2026-07-01",
+      dateTo: "2026-07-31",
+    });
+    expect(filters).not.toHaveProperty("categoryId");
+  });
+
+  it.each([
+    ["2026-04-01", "2026-04-01", "2026-04-30"],
+    ["2026-02-01", "2026-02-01", "2026-02-28"],
+    ["2024-02-01", "2024-02-01", "2024-02-29"],
+  ])("spans the whole month of %s", (periodStart, dateFrom, dateTo) => {
+    const filters = toTransactionFilters(budget({ periodStart }));
+    expect(filters.dateFrom).toBe(dateFrom);
+    expect(filters.dateTo).toBe(dateTo);
   });
 });
 
@@ -62,6 +101,26 @@ describe("sortBudgets", () => {
     ];
     sortBudgets(input);
     expect(input.map((item) => item.id)).toEqual(["food", "overall"]);
+  });
+});
+
+describe("hasOverallBudget", () => {
+  it("is true when the overall budget stands alone", () => {
+    expect(hasOverallBudget([budget({ categoryId: null })])).toBe(true);
+  });
+
+  it("is true when it sits alongside category budgets", () => {
+    expect(
+      hasOverallBudget([budget({}), budget({ categoryId: null }), budget({})]),
+    ).toBe(true);
+  });
+
+  it("is false for category budgets only", () => {
+    expect(hasOverallBudget([budget({}), budget({})])).toBe(false);
+  });
+
+  it("is false for an empty period", () => {
+    expect(hasOverallBudget([])).toBe(false);
   });
 });
 

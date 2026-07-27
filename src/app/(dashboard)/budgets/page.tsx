@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MonthNav } from "@/components/dashboard";
 import { useBudgetProgress } from "@/features/budgets/hooks/use-budget-progress";
 import { useBudgetStore } from "@/features/budgets/store";
-import { toPeriodStart } from "@/features/budgets/utils";
+import { hasOverallBudget, toPeriodStart } from "@/features/budgets/utils";
 import {
   AddBudgetSheet,
   BudgetEmpty,
@@ -44,7 +44,9 @@ export default function BudgetsPage() {
       <div className="flex flex-col gap-4 lg:flex-row-reverse lg:items-start lg:gap-6">
         <aside className="flex flex-col gap-4 lg:sticky lg:top-6 lg:w-2/5 lg:shrink-0">
           <MonthNav value={month} onChange={setMonth} />
-          {!!budgets?.length && <BudgetSummary budgets={budgets} />}
+          {!!budgets?.length && !hasOverallBudget(budgets) && (
+            <BudgetSummary budgets={budgets} />
+          )}
         </aside>
 
         <div className="min-w-0 flex-1 lg:w-3/5">

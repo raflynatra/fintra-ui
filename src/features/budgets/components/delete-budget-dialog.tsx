@@ -17,7 +17,14 @@ import { useDeleteBudget } from "@/features/budgets/hooks/use-delete-budget";
 import { useBudgetStore } from "@/features/budgets/store";
 import { OVERALL_BUDGET_LABEL } from "@/features/budgets/constants";
 
-export function DeleteBudgetDialog() {
+interface DeleteBudgetDialogProps {
+  /** Called after a successful delete — the detail page uses it to navigate away. */
+  onDeleted?: () => void;
+}
+
+export function DeleteBudgetDialog({
+  onDeleted,
+}: DeleteBudgetDialogProps = {}) {
   const budget = useBudgetStore((state) => state.deleting);
   const setDeleting = useBudgetStore((state) => state.setDeleting);
   const deleteBudget = useDeleteBudget();
@@ -32,6 +39,7 @@ export function DeleteBudgetDialog() {
       onSuccess: () => {
         toast.success(`${label} budget has been deleted`);
         setDeleting(null);
+        onDeleted?.();
       },
       onError: (error) =>
         toast.error("Couldn't delete budget", { description: error.message }),
