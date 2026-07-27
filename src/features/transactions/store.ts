@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { currentMonth } from "./utils";
+import { currentMonth } from "@/lib/date";
 import type { TransactionQueryParams, TransactionUIState } from "./types";
 
 const DEFAULT_PARAMS: TransactionQueryParams = { size: 10 };

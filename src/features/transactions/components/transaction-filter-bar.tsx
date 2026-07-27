@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TransactionFilters } from "@/features/transactions/components/transaction-filters";
-import { TransactionMonthNav } from "@/features/transactions/components/transaction-month-nav";
+import { MonthNav } from "@/components/dashboard";
 import { useTransactionStore } from "@/features/transactions/store";
 import { activeFilterCount } from "@/features/transactions/utils";
 import { useCategories, toCategoryType } from "@/features/categories";
@@ -48,7 +48,7 @@ export function TransactionFilterBar() {
 
   return (
     <div className="flex flex-col gap-2">
-      <TransactionMonthNav value={month} onChange={setMonth} />
+      <MonthNav value={month} onChange={setMonth} />
 
       <Collapsible
         open={open}

@@ -1,11 +1,4 @@
-import {
-  addMonths,
-  endOfMonth,
-  format,
-  isToday,
-  isYesterday,
-  parseISO,
-} from "date-fns";
+import { endOfMonth, format, isToday, isYesterday, parseISO } from "date-fns";
 
 import { formatTransactionDate, formatTransactionWeekday } from "@/lib/format";
 import type {
@@ -28,16 +21,6 @@ export function activeFilterCount(params: TransactionQueryParams): number {
 /** Whether the list is narrowed by anything the user can clear. */
 export function hasActiveFilters(params: TransactionQueryParams): boolean {
   return activeFilterCount(params) > 0;
-}
-
-/** The current period as "YYYY-MM". */
-export function currentMonth(): string {
-  return format(new Date(), "yyyy-MM");
-}
-
-/** Moves a "YYYY-MM" period by whole months, crossing year boundaries. */
-export function shiftMonth(month: string, delta: number): string {
-  return format(addMonths(parseISO(`${month}-01`), delta), "yyyy-MM");
 }
 
 /** Expands a "YYYY-MM" period into the inclusive date range it covers. */

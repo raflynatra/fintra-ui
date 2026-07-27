@@ -4,21 +4,17 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { formatMonth } from "@/lib/format";
+import { currentMonth, shiftMonth } from "@/lib/date";
 import { Button } from "@/components/ui/button";
-import { currentMonth, shiftMonth } from "@/features/transactions/utils";
 
-interface TransactionMonthNavProps {
+interface MonthNavProps {
   /** The selected period as "YYYY-MM". */
   value: string;
   onChange: (month: string) => void;
   className?: string;
 }
 
-export function TransactionMonthNav({
-  value,
-  onChange,
-  className,
-}: TransactionMonthNavProps) {
+export function MonthNav({ value, onChange, className }: MonthNavProps) {
   const isCurrentMonth = value === currentMonth();
 
   return (
