@@ -3,7 +3,6 @@ import {
   activeFilterCount,
   groupTotals,
   hasActiveFilters,
-  monthRange,
   toQueryParams,
   toWritePayload,
 } from "./utils";
@@ -97,17 +96,6 @@ describe("activeFilterCount", () => {
 
   it("is zero for a period-only view", () => {
     expect(activeFilterCount({ size: 10, dateFrom: "2026-07-01" })).toBe(0);
-  });
-});
-
-describe("monthRange", () => {
-  it.each([
-    ["2026-07", "2026-07-01", "2026-07-31"],
-    ["2026-04", "2026-04-01", "2026-04-30"],
-    ["2026-02", "2026-02-01", "2026-02-28"],
-    ["2024-02", "2024-02-01", "2024-02-29"],
-  ])("expands %s to %s – %s", (month, dateFrom, dateTo) => {
-    expect(monthRange(month)).toEqual({ dateFrom, dateTo });
   });
 });
 

@@ -1,5 +1,6 @@
-import { endOfMonth, format, isToday, isYesterday, parseISO } from "date-fns";
+import { isToday, isYesterday, parseISO } from "date-fns";
 
+import { monthRange } from "@/lib/date";
 import { formatTransactionDate, formatTransactionWeekday } from "@/lib/format";
 import type {
   Transaction,
@@ -21,19 +22,6 @@ export function activeFilterCount(params: TransactionQueryParams): number {
 /** Whether the list is narrowed by anything the user can clear. */
 export function hasActiveFilters(params: TransactionQueryParams): boolean {
   return activeFilterCount(params) > 0;
-}
-
-/** Expands a "YYYY-MM" period into the inclusive date range it covers. */
-export function monthRange(month: string): {
-  dateFrom: string;
-  dateTo: string;
-} {
-  const start = parseISO(`${month}-01`);
-
-  return {
-    dateFrom: format(start, "yyyy-MM-dd"),
-    dateTo: format(endOfMonth(start), "yyyy-MM-dd"),
-  };
 }
 
 /** Combines the active filters with the selected period into wire params. */
