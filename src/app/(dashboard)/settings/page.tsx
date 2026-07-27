@@ -1,37 +1,24 @@
 "use client";
 
-import {
-  LogOutIcon,
-  LockIcon,
-  ShapesIcon,
-  UserIcon,
-  WalletIcon,
-} from "lucide-react";
+import { LogOutIcon, ShapesIcon, WalletIcon } from "lucide-react";
 
 import { APP_ROUTES } from "@/lib/constants";
 import { SettingsGroup, SettingsRow } from "@/components/settings";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/features/auth/components";
-import { useAuthStore } from "@/features/auth/store";
 import { useAccounts } from "@/features/accounts";
+import { useMe } from "@/features/users";
+import { ProfileCard } from "@/features/users/components";
 
 export default function SettingsPage() {
-  const user = useAuthStore((state) => state.user);
+  const { data: user, isLoading } = useMe();
   const { data: accounts } = useAccounts({ includeArchived: true });
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
       <h2 className="text-2xl font-bold">Settings</h2>
 
-      <SettingsGroup label="Profile">
-        <SettingsRow
-          icon={UserIcon}
-          label="Name & email"
-          value={user?.email}
-          disabled
-        />
-        <SettingsRow icon={LockIcon} label="Password" disabled />
-      </SettingsGroup>
+      <ProfileCard user={user} isLoading={isLoading} />
 
       <SettingsGroup label="App">
         <SettingsRow

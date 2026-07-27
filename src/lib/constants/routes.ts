@@ -8,6 +8,7 @@ export const APP_ROUTES = {
   settings: "/settings",
   accounts: "/settings/accounts",
   categories: "/settings/categories",
+  profile: "/settings/profile",
 } as const;
 
 /**

@@ -41,6 +41,14 @@ export function formatMonth(value: string): string {
   });
 }
 
+/** Formats an ISO timestamp as its month and year, e.g. "July 2026". */
+export function formatMonthYear(value: string): string {
+  return new Date(value).toLocaleDateString("en-GB", {
+    month: "long",
+    year: "numeric",
+  });
+}
+
 /** Formats a "YYYY-MM-DD" transaction date's weekday, e.g. "Tue". */
 export function formatTransactionWeekday(value: string): string {
   const [year, month, day] = value.split("-").map(Number);

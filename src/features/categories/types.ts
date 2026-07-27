@@ -1,4 +1,6 @@
+import * as z from "zod";
 import type { TransactionType } from "@/features/transactions/types";
+import type { categorySchema } from "./schema";
 
 export type CategoryType = "income" | "expense";
 
@@ -13,6 +15,9 @@ export interface Category {
   id: string;
   name: string;
   type: CategoryType;
+  /** Seeded defaults, shared across users and not deletable. */
   isSystem: boolean;
   createdAt: string;
 }
+
+export type CategoryPayload = z.infer<typeof categorySchema>;

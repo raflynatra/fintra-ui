@@ -1,8 +1,19 @@
 import * as z from "zod";
 import { ApiResponse } from "@/types/api";
-import { loginSchema } from "./schema";
+import { changePasswordFormSchema, loginSchema } from "./schema";
 
 export type LoginPayload = z.infer<typeof loginSchema>;
+
+export type ChangePasswordFormValues = z.infer<typeof changePasswordFormSchema>;
+
+/**
+ * The request body. Hand-written rather than inferred from the form schema, so
+ * the confirmation field can't drift back into what gets sent.
+ */
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
 
 export interface User {
   id?: string;

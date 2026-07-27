@@ -9,6 +9,5 @@ export function useCategories(type?: CategoryType) {
       apiClient.get<Category[]>("/api/categories", {
         params: type ? { type } : undefined,
       }),
-    staleTime: Infinity,
   });
 }
