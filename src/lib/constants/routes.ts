@@ -2,17 +2,22 @@
 export const APP_ROUTES = {
   login: "/login",
   dashboard: "/dashboard",
-  accounts: "/dashboard/accounts",
   transactions: "/transactions",
+  budgets: "/budgets",
   reports: "/reports",
   settings: "/settings",
+  accounts: "/settings/accounts",
+  categories: "/settings/categories",
 } as const;
 
-/** Routes behind the dashboard shell that require a session. */
+/**
+ * Routes behind the dashboard shell that require a session. Matched by prefix,
+ * so `/settings` also covers every settings sub-page.
+ */
 export const PROTECTED_ROUTES: string[] = [
   APP_ROUTES.dashboard,
   APP_ROUTES.transactions,
-  APP_ROUTES.accounts,
+  APP_ROUTES.budgets,
   APP_ROUTES.reports,
   APP_ROUTES.settings,
 ];

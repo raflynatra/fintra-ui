@@ -12,25 +12,33 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { APP_ROUTES } from "@/lib/constants";
 import { useLogout } from "@/features/auth/hooks/use-logout";
 import { useRouter } from "next/navigation";
 
-export function LogoutButton() {
+interface LogoutButtonProps {
+  /** Replaces the default header button, e.g. with a settings row. */
+  trigger?: React.ReactNode;
+}
+
+export function LogoutButton({ trigger }: LogoutButtonProps = {}) {
   const router = useRouter();
   const logout = useLogout();
 
   const handleLogout = () => {
     logout.mutate(undefined, {
-      onSettled: () => router.push("/login"),
+      onSettled: () => router.push(APP_ROUTES.login),
     });
   };
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          Logout
-        </Button>
+        {trigger ?? (
+          <Button variant="outline" size="sm">
+            Logout
+          </Button>
+        )}
       </AlertDialogTrigger>
 
       <AlertDialogContent>

@@ -1,7 +1,7 @@
 import {
   LayoutDashboard,
   TrendingUp,
-  FileBarChart,
+  PiggyBank,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -25,9 +25,9 @@ export const NAV_ITEMS: NavItem[] = [
     icon: TrendingUp,
   },
   {
-    href: APP_ROUTES.reports,
-    label: "Reports",
-    icon: FileBarChart,
+    href: APP_ROUTES.budgets,
+    label: "Budgets",
+    icon: PiggyBank,
   },
   {
     href: APP_ROUTES.settings,
