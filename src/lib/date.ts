@@ -10,11 +10,14 @@ export function shiftMonth(month: string, delta: number): string {
   return format(addMonths(parseISO(`${month}-01`), delta), "yyyy-MM");
 }
 
-/** Expands a "YYYY-MM" period into the inclusive date range it covers. */
-export function monthRange(month: string): {
+/** An inclusive date range, both ends as "YYYY-MM-DD". */
+export type MonthRange = {
   dateFrom: string;
   dateTo: string;
-} {
+};
+
+/** Expands a "YYYY-MM" period into the inclusive date range it covers. */
+export function monthRange(month: string): MonthRange {
   const start = parseISO(`${month}-01`);
 
   return {

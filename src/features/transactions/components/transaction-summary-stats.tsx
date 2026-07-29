@@ -1,7 +1,16 @@
+"use client";
+
+import { useState } from "react";
+import { LucideIcon } from "lucide-react";
+
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { formatCurrency, formatCurrencyCompact } from "@/lib/format";
-import { LucideIcon } from "lucide-react";
 
 interface TransactionSummaryStats {
   label: string;
@@ -20,7 +29,13 @@ export function TransactionSummaryStats({
   icon: Icon,
   compact = false,
 }: TransactionSummaryStats) {
+  const [open, setOpen] = useState(false);
   const exact = formatCurrency(value ?? 0);
+
+  const valueClasses = cn(
+    "truncate font-semibold text-primary-foreground",
+    valueClassName,
+  );
 
   return (
     <div className="flex min-w-0 items-center gap-2">
@@ -35,27 +50,36 @@ export function TransactionSummaryStats({
           <Skeleton
             className={cn(
               "bg-muted/20",
-              label === "Balance" ? "h-7 w-64" : "h-4 w-28",
+              label === "Net" ? "h-7 w-64" : "h-4 w-28",
             )}
           />
-        ) : (
-          <p
-            title={exact}
-            className={cn(
-              "truncate font-semibold text-primary-foreground",
-              valueClassName,
-            )}
+        ) : compact ? (
+          <Tooltip
+            open={open}
+            onOpenChange={(next) => !next && setOpen(false)}
+            disableHoverableContent
           >
-            {compact ? (
-              <>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className={cn(valueClasses, "block max-w-full text-left")}
+                onPointerDown={(event) => event.preventDefault()}
+                onClick={(event) => {
+                  event.preventDefault();
+                  setOpen((previous) => !previous);
+                }}
+              >
                 <span className="@sm:hidden">
                   {formatCurrencyCompact(value ?? 0)}
                 </span>
                 <span className="hidden @sm:inline">{exact}</span>
-              </>
-            ) : (
-              exact
-            )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{exact}</TooltipContent>
+          </Tooltip>
+        ) : (
+          <p title={exact} className={valueClasses}>
+            {exact}
           </p>
         )}
       </div>

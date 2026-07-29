@@ -2,24 +2,22 @@
 
 import { Card } from "@/components/ui/card";
 import { useTransactionSummary } from "@/features/transactions/hooks/use-transaction-summary";
-import type {
-  TransactionListParams,
-  TransactionSummary,
-} from "@/features/transactions/types";
+import { monthRange } from "@/lib/date";
 import { BanknoteArrowDownIcon, BanknoteArrowUpIcon } from "lucide-react";
 import { TransactionSummaryStats } from "./transaction-summary-stats";
 
 interface TransactionSummaryProps {
-  params: TransactionListParams;
+  /** The selected period as "YYYY-MM". */
+  month: string;
 }
 
-export function TransactionSummary({ params }: TransactionSummaryProps) {
-  const { data, isLoading } = useTransactionSummary(params);
+export function TransactionSummary({ month }: TransactionSummaryProps) {
+  const { data, isLoading } = useTransactionSummary(monthRange(month));
 
   return (
     <Card className="@container gap-4 bg-primary px-4 py-3 shadow-lg">
       <TransactionSummaryStats
-        label="Balance"
+        label="Net"
         value={data?.balance}
         isLoading={isLoading}
         valueClassName="text-2xl"
