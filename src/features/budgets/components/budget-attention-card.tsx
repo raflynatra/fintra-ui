@@ -22,9 +22,8 @@ function AttentionRow({ budget, isOver }: AttentionRowProps) {
     <li>
       <Link
         href={`${APP_ROUTES.budgets}/${budget.id}`}
-        className="flex items-center gap-2 rounded-md py-1 text-sm transition-colors hover:bg-muted"
+        className="flex items-center gap-2 rounded-md p-1 text-sm transition-colors hover:bg-muted"
       >
-        {/* Icon plus label, so the state never rests on colour alone. */}
         <Icon
           className={cn(
             "size-4 shrink-0",
