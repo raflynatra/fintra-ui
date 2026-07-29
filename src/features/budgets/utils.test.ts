@@ -5,6 +5,7 @@ import {
   budgetsNeedingAttention,
   hasOverallBudget,
   monthElapsedPercent,
+  paceLabelAlign,
   sortBudgets,
   spendBreakdown,
   spendingPace,
@@ -81,6 +82,24 @@ describe("barWidth", () => {
 
   it("clamps a negative percentage at 0", () => {
     expect(barWidth(-5)).toBe(0);
+  });
+});
+
+describe("paceLabelAlign", () => {
+  it("centres the label for a tick in the body of the month", () => {
+    expect(paceLabelAlign(50)).toBe("-translate-x-1/2");
+  });
+
+  it.each([0, 10])("hangs the label right of a tick at %i%%", (left) => {
+    expect(paceLabelAlign(left)).toBe("translate-x-0");
+  });
+
+  it.each([90, 100])("pulls the label left of a tick at %i%%", (left) => {
+    expect(paceLabelAlign(left)).toBe("-translate-x-3.5");
+  });
+
+  it.each([11, 89])("still centres just inside either edge (%i%%)", (left) => {
+    expect(paceLabelAlign(left)).toBe("-translate-x-1/2");
   });
 });
 

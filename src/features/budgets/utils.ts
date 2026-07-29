@@ -42,6 +42,17 @@ export function barWidth(percentUsed: number): number {
   return Math.min(Math.max(percentUsed, 0), 100);
 }
 
+/**
+ * How to hang the pace label off its tick so it stays within the track. Centred
+ * for most of the month, but near either end it is pulled inward instead — on
+ * the 29th the tick sits at 94% and a centred label would bleed past the card.
+ */
+export function paceLabelAlign(left: number): string {
+  if (left <= 10) return "translate-x-0";
+  if (left >= 90) return "-translate-x-3.5";
+  return "-translate-x-1/2";
+}
+
 /** Overall budget first, then the most-used categories — what's at risk sits on top. */
 export function sortBudgets(budgets: BudgetProgress[]): BudgetProgress[] {
   return [...budgets].sort((a, b) => {
