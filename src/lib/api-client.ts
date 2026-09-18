@@ -39,7 +39,16 @@ async function tryRefresh(): Promise<RefreshOutcome> {
     credentials: "include",
   })
     .then(async (res): Promise<RefreshOutcome> => {
-      if (!res.ok) return "invalid";
+      /**
+       * Only a rejected session ends the session. A rate limit or a backend
+       * fault is transient — signing the user out over one would lose their
+       * session to a hiccup.
+       */
+      if (!res.ok) {
+        return res.status === 401 || res.status === 403
+          ? "invalid"
+          : "unreachable";
+      }
       const data: RefreshData = await res.json();
       useAuthStore.getState().setToken(data.token);
       return "refreshed";

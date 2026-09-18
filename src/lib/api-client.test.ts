@@ -96,6 +96,33 @@ describe("apiClient", () => {
     expect(window.location.href).toBe("http://localhost:3000/");
   });
 
+  it.each([
+    ["rate-limited", 429],
+    ["failing", 503],
+  ])(
+    "keeps the session when the refresh is %s — that is not a rejected session",
+    async (_label, status) => {
+      useAuthStore.setState({
+        user: { name: "Ada", email: "a@b.com" },
+        token: "expired",
+      });
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValueOnce(jsonResponse({ message: "unauthorized" }, 401))
+        .mockResolvedValueOnce(
+          jsonResponse({ code: "RATE_LIMIT_EXCEEDED" }, status),
+        );
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(apiClient.get("/api/data")).rejects.toMatchObject({
+        code: "SERVICE_UNAVAILABLE",
+      });
+      expect(useAuthStore.getState().token).toBe("expired");
+      expect(useAuthStore.getState().user).not.toBeNull();
+      expect(window.location.href).toBe("http://localhost:3000/");
+    },
+  );
+
   it("does not attempt a refresh on invalid-credentials 401", async () => {
     const fetchMock = vi
       .fn()
