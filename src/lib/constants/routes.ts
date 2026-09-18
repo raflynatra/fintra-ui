@@ -1,6 +1,7 @@
 /** Application route paths. */
 export const APP_ROUTES = {
   login: "/login",
+  register: "/register",
   dashboard: "/dashboard",
   transactions: "/transactions",
   budgets: "/budgets",
@@ -24,4 +25,4 @@ export const PROTECTED_ROUTES: string[] = [
 ];
 
 /** Routes a signed-in user has no business seeing. */
-export const AUTH_ROUTES: string[] = [APP_ROUTES.login];
+export const AUTH_ROUTES: string[] = [APP_ROUTES.login, APP_ROUTES.register];

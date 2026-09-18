@@ -3,14 +3,68 @@ import {
   changePasswordFormSchema,
   loginSchema,
   passwordSchema,
+  registerSchema,
   PASSWORD_RULES,
 } from "./schema";
 
+describe("registerSchema", () => {
+  const valid = {
+    name: "Ada Lovelace",
+    email: "ada@example.com",
+    password: "Secret123",
+  };
+
+  it("accepts a name, email and compliant password", () => {
+    expect(registerSchema.safeParse(valid).success).toBe(true);
+  });
+
+  it.each([
+    ["a missing name", { name: "" }],
+    ["a name over 100 characters", { name: "x".repeat(101) }],
+    ["a malformed email", { email: "not-an-email" }],
+    ["an email over 255 characters", { email: `${"x".repeat(250)}@e.com` }],
+  ])("rejects %s", (_label, override) => {
+    expect(registerSchema.safeParse({ ...valid, ...override }).success).toBe(
+      false,
+    );
+  });
+
+  it.each([
+    ["length", "Secr3t"],
+    ["uppercase", "secret123"],
+    ["lowercase", "SECRET123"],
+    ["number", "SecretPass"],
+  ])("rejects a password missing the %s rule, naming it", (ruleId, password) => {
+    const result = registerSchema.safeParse({ ...valid, password });
+    expect(result.success).toBe(false);
+
+    const rule = PASSWORD_RULES.find((entry) => entry.id === ruleId)!;
+    const messages = result.success
+      ? []
+      : result.error.issues.map((issue) => issue.message);
+    expect(messages).toContain(rule.label);
+  });
+
+  it("reports each failure at its own field, so the form can render it inline", () => {
+    const result = registerSchema.safeParse({
+      name: "",
+      email: "nope",
+      password: "weak",
+    });
+
+    expect(result.success).toBe(false);
+    const paths = result.success
+      ? []
+      : result.error.issues.map((issue) => issue.path.join("."));
+    expect(paths).toEqual(expect.arrayContaining(["name", "email", "password"]));
+  });
+});
+
 describe("loginSchema", () => {
-  it("accepts a valid email and password", () => {
+  it("accepts a valid email and a compliant password", () => {
     const result = loginSchema.safeParse({
       email: "user@example.com",
-      password: "secret1",
+      password: "Secret123",
     });
     expect(result.success).toBe(true);
   });
@@ -18,17 +72,9 @@ describe("loginSchema", () => {
   it("rejects an invalid email", () => {
     const result = loginSchema.safeParse({
       email: "not-an-email",
-      password: "secret1",
+      password: "Secret123",
     });
     expect(result.success).toBe(false);
-  });
-
-  it("accepts a short legacy password — the backend's login rule is min(1)", () => {
-    const result = loginSchema.safeParse({
-      email: "user@example.com",
-      password: "123",
-    });
-    expect(result.success).toBe(true);
   });
 
   it("still requires a password", () => {
@@ -37,6 +83,40 @@ describe("loginSchema", () => {
       password: "",
     });
     expect(result.success).toBe(false);
+  });
+
+  // Pins the deliberate reversal: login used to accept any non-empty password so
+  // that pre-rule passwords kept working. Relaxing it again must fail here first.
+  it.each([
+    ["length", "Secr3t"],
+    ["uppercase", "secret123"],
+    ["lowercase", "SECRET123"],
+    ["number", "SecretPass"],
+  ])("rejects a password missing the %s rule, naming it", (ruleId, password) => {
+    const result = loginSchema.safeParse({
+      email: "user@example.com",
+      password,
+    });
+    expect(result.success).toBe(false);
+
+    const rule = PASSWORD_RULES.find((entry) => entry.id === ruleId)!;
+    const messages = result.success
+      ? []
+      : result.error.issues.map((issue) => issue.message);
+    expect(messages).toContain(rule.label);
+  });
+
+  it("reports the rule under password, so the form can render it inline", () => {
+    const result = loginSchema.safeParse({
+      email: "user@example.com",
+      password: "short",
+    });
+
+    expect(result.success).toBe(false);
+    const paths = result.success
+      ? []
+      : result.error.issues.map((issue) => issue.path.join("."));
+    expect(paths).toContain("password");
   });
 });
 
