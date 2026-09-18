@@ -2,6 +2,7 @@ import {
   AccountSummaryCard,
   AccountTotalCard,
 } from "@/features/accounts/components";
+import { ReportsEntryCard } from "@/features/reports/components";
 
 export default function DashboardPage() {
   return (
@@ -10,6 +11,7 @@ export default function DashboardPage() {
       <div className="grid items-start gap-4 sm:grid-cols-2">
         <AccountTotalCard />
         <AccountSummaryCard />
+        <ReportsEntryCard />
       </div>
     </div>
   );
