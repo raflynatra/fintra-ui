@@ -8,7 +8,6 @@ import { currentMonth, shiftMonth } from "@/lib/date";
 import { Button } from "@/components/ui/button";
 
 interface MonthNavProps {
-  /** The selected period as "YYYY-MM". */
   value: string;
   onChange: (month: string) => void;
   className?: string;

@@ -104,7 +104,7 @@ export default function BudgetDetailPage({
             </div>
           </div>
 
-          <BudgetMeter budget={budget} />
+          <BudgetMeter budget={budget} showPaceLabel />
         </CardContent>
       </Card>
 

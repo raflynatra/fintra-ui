@@ -1,15 +1,5 @@
 import * as z from "zod";
 
-export const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  /**
-   * The backend's login rule is `min(1)` — anything stricter here would lock
-   * out an existing password that predates the current rules. New passwords are
-   * governed by `passwordSchema` instead.
-   */
-  password: z.string().min(1, "Password is required"),
-});
-
 /**
  * The backend's rules for a password being *set*, one entry each so the form can
  * tick them off as they're met. `passwordSchema` is built from this array, so
@@ -49,6 +39,17 @@ export const passwordSchema = z
       }
     }
   });
+
+/**
+ * Login deliberately enforces the full `passwordSchema` rules, not the backend's
+ * laxer `min(1)`. The trade-off: an account whose password predates those rules
+ * can no longer submit this form and must be reset out of band. Chosen so the
+ * app states one password standard rather than two.
+ */
+export const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: passwordSchema,
+});
 
 export const changePasswordFormSchema = z
   .object({

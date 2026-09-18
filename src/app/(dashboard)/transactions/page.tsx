@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
+import { MonthNav } from "@/components/dashboard";
 import { useTransactions } from "@/features/transactions/hooks/use-transactions";
 import { useTransactionStore } from "@/features/transactions/store";
 import { hasActiveFilters, toQueryParams } from "@/features/transactions/utils";
@@ -16,6 +17,7 @@ import {
 export default function TransactionsPage() {
   const params = useTransactionStore((state) => state.params);
   const month = useTransactionStore((state) => state.month);
+  const setMonth = useTransactionStore((state) => state.setMonth);
 
   const queryParams = useMemo(
     () => toQueryParams(params, month),
@@ -31,9 +33,11 @@ export default function TransactionsPage() {
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-4">
       <h2 className="text-2xl font-bold">Transactions</h2>
 
+      <MonthNav value={month} onChange={setMonth} />
+
       <div className="flex flex-col gap-4 lg:flex-row-reverse lg:items-start lg:gap-6">
         <aside className="flex flex-col gap-4 lg:sticky lg:top-6 lg:w-2/5 lg:shrink-0">
-          <TransactionSummary params={queryParams} />
+          <TransactionSummary month={month} />
           <TransactionFilterBar />
         </aside>
 

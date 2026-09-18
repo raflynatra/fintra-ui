@@ -7,10 +7,10 @@ import {
 } from "./schema";
 
 describe("loginSchema", () => {
-  it("accepts a valid email and password", () => {
+  it("accepts a valid email and a compliant password", () => {
     const result = loginSchema.safeParse({
       email: "user@example.com",
-      password: "secret1",
+      password: "Secret123",
     });
     expect(result.success).toBe(true);
   });
@@ -18,17 +18,9 @@ describe("loginSchema", () => {
   it("rejects an invalid email", () => {
     const result = loginSchema.safeParse({
       email: "not-an-email",
-      password: "secret1",
+      password: "Secret123",
     });
     expect(result.success).toBe(false);
-  });
-
-  it("accepts a short legacy password — the backend's login rule is min(1)", () => {
-    const result = loginSchema.safeParse({
-      email: "user@example.com",
-      password: "123",
-    });
-    expect(result.success).toBe(true);
   });
 
   it("still requires a password", () => {
@@ -37,6 +29,40 @@ describe("loginSchema", () => {
       password: "",
     });
     expect(result.success).toBe(false);
+  });
+
+  // Pins the deliberate reversal: login used to accept any non-empty password so
+  // that pre-rule passwords kept working. Relaxing it again must fail here first.
+  it.each([
+    ["length", "Secr3t"],
+    ["uppercase", "secret123"],
+    ["lowercase", "SECRET123"],
+    ["number", "SecretPass"],
+  ])("rejects a password missing the %s rule, naming it", (ruleId, password) => {
+    const result = loginSchema.safeParse({
+      email: "user@example.com",
+      password,
+    });
+    expect(result.success).toBe(false);
+
+    const rule = PASSWORD_RULES.find((entry) => entry.id === ruleId)!;
+    const messages = result.success
+      ? []
+      : result.error.issues.map((issue) => issue.message);
+    expect(messages).toContain(rule.label);
+  });
+
+  it("reports the rule under password, so the form can render it inline", () => {
+    const result = loginSchema.safeParse({
+      email: "user@example.com",
+      password: "short",
+    });
+
+    expect(result.success).toBe(false);
+    const paths = result.success
+      ? []
+      : result.error.issues.map((issue) => issue.path.join("."));
+    expect(paths).toContain("password");
   });
 });
 

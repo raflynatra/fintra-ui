@@ -1,21 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import { toStringParams } from "@/features/transactions/utils";
-import type {
-  TransactionListParams,
-  TransactionSummary,
-} from "@/features/transactions/types";
+import type { MonthRange } from "@/lib/date";
+import type { TransactionSummary } from "@/features/transactions/types";
 
-/**
- * Fetches the summary totals. The backend currently scopes `getSummary` to the
- * user alone, so the returned totals are all-time and ignore every param sent.
- */
-export function useTransactionSummary(params: TransactionListParams) {
+/** Fetches the income, expense and net totals for the given date range. */
+export function useTransactionSummary(range: MonthRange) {
   return useQuery({
-    queryKey: ["transactions", "summary", params],
+    queryKey: ["transactions", "summary", range],
     queryFn: () =>
-      apiClient.get<TransactionSummary>("/api/transactions/summary", {
-        params: toStringParams(params),
-      }),
+      apiClient.get<TransactionSummary>(
+        "/api/transactions/summary/date-range",
+        { params: range },
+      ),
   });
 }

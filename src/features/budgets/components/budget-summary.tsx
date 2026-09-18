@@ -51,6 +51,7 @@ export function BudgetSummary({ budgets }: BudgetSummaryProps) {
             percentUsed={percentUsed}
             isOverBudget={isOverBudget}
             pacePercent={pacePercent}
+            showPaceLabel
           />
 
           <p
