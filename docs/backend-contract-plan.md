@@ -1,5 +1,38 @@
 # Fintra UI — Backend Contract Catch-Up
 
+## Status (2026-09-18)
+
+**Phases 0–4 are shipped**, along with the summary-filter fix that Phase 5 carried:
+`useTransactionSummary` now calls `/api/transactions/summary/date-range` and the
+card honestly reflects the selected month.
+
+What remains, in the order it will actually be built:
+
+| Phase | State | Note |
+| --- | --- | --- |
+| 0 — Contract foundation | **Done** | |
+| 1 — Accounts | **Done** | |
+| 2 — Transfers | **Done** | |
+| 3 — Budgets | **Done** | |
+| 4 — Settings | **Done** | |
+| 5 — Reports | **Rewritten** | Ships *after* register. See the rewritten section. |
+| 6 — Register | **Rewritten, and moved first** | Email + password only. |
+| 6b — Google sign-in | **Split out** | Its own slice, after reports. |
+
+The two things that changed since this plan was written, both the result of a
+design session rather than drift:
+
+1. **Register ships before Reports.** The app is expected to take real signups and
+   has no way to create an account, so reports is polish for a user who cannot get
+   in the door. Recorded in `docs/adr/0001-register-before-reports.md`.
+2. **Google sign-in is its own slice.** It is the only work here with an external
+   dependency, and it blocks nobody.
+
+Working specs live in `docs/specs/`; the tickets derived from them are in
+`.scratch/register-and-reports/issues/`.
+
+---
+
 ## Context
 
 `fintra-ui` hand-writes its API types. The backend (`D:\Personal\Apps\fintra-api`) has moved ahead, and nothing enforces agreement, so the two drifted silently. Reading the updated `openapi.json` plus the backend source turned up one **broken** flow, one **silently wrong** flow, one **security gap**, and three whole domains the UI has no concept of.
@@ -183,19 +216,67 @@ A `toCreatePayload()` mapper in `utils.ts` strips the arm-irrelevant field so th
 
 ## Phase 5 — Reports + the summary-filter fix
 
-**Added:** `use-category-summary.ts`, `use-monthly-trend.ts` (`months` is a **string**, default `"12"`), `use-summary-by-date-range.ts`; the three matching route handlers; `src/app/(dashboard)/reports/page.tsx`. recharts is already a dependency — this is what it's for. Mobile-first: stacked cards, one chart per viewport width, nothing side-by-side below `md`.
+**The summary-filter fix is already shipped.** `use-transaction-summary.ts` calls
+`/api/transactions/summary/date-range`, so the card reflects the selected month
+rather than pretending to honour every filter. The rest of this phase was rewritten
+in the 2026-09-18 session and now looks like this.
 
-**Modified — the silent bug.** `use-transaction-summary.ts` sends filters `getSummary(userId)` ignores. Fixed here because `summary/date-range` is the actual remedy and it lands in this phase: use `/date-range` when **both** ends are set, else fall back to all-time; narrow the prop to the two date fields.
+**Two views, nothing else.** Reports carries only what no other surface has: spend
+by category for the selected month, and twelve months of income against expense. No
+totals cards, no restating the month summary, no budget pace. If it cannot fill two
+charts, it belongs on Overview instead.
 
-**Document the limitation:** `type` / `categoryId` / `accountId` / `amountMin` / `amountMax` still won't affect the summary card — the backend has no endpoint for it. Today the card *pretends* to be filter-aware; after this it honestly reflects the date range only. Add a caption rather than leaving it looking filter-aware.
+**Placement.** Its own route under `(dashboard)`, reached from a dedicated card on
+Overview. **No navigation slot** — the bottom bar stays at four items and Settings
+keeps its place. This reverses the original plan's nav split, which is therefore not
+needed.
 
-**Verify:** set both ends of a date range → the card's numbers change. *They don't today — that's the proof.* One end only → all-time. Create a transfer → the month's trend figures don't move.
+**Time scope.** The selected month, via the same `MonthNav` component and date
+helpers the other pages use. No date-range picker. Note that each feature keeps its
+own month in its own store; there is no shared month state, and reports follows that
+convention rather than introducing one.
+
+**The category endpoint is unusable for this.**
+`GET /api/transactions/summary/categories` takes **only a user id — it has no date
+filter and is all-time**. The month's breakdown is therefore derived client-side
+from a date-filtered transaction fetch, aggregated by a pure, tested function. The
+ceiling: the list endpoint paginates, so the aggregate is wrong for a month larger
+than the page size requested. Upgrade path is a date-filtered category endpoint
+backend-side, at which point the client aggregation is deleted.
+
+**The trend endpoint has two traps.** `GET /api/transactions/trend/monthly` groups
+by month, so **months with no transactions are absent from the response** and must
+be zero-filled client-side. And its window is relative to *now*, not to the selected
+month — so the card is labelled "last 12 months" and does not appear to follow the
+switcher.
+
+**Charts:** donut with the legend below for categories; grouped bars, income against
+expense, for the trend. recharts is already a dependency. Empty states are per card,
+so an empty current month never hides a year of trend data.
+
+**Verify:** category totals reconcile with the month summary card, with a transfer
+counted in neither. A month with no transactions shows the donut's empty state while
+the trend keeps rendering.
 
 ---
 
-## Phase 6 — Register + Google
+## Phase 6 — Register *(moved first)* and Google *(split out)*
 
-**Last, because it's the only phase with an external dependency** (Google Identity Services + a client ID). Everything before it ships without touching env or third-party SDKs.
+**No longer last.** Registration now ships **before** reports: the app is expected
+to take real signups and currently offers no way to create an account. See
+`docs/adr/0001-register-before-reports.md`.
+
+**Google is a separate slice**, after reports. It is the only work here with an
+external dependency — a client ID and a third-party script — and it blocks nobody.
+
+**Registration is open**: no invite code, no terms checkbox, no email verification.
+Verification and rate limiting are backend concerns, and a client-side gate would be
+theatre.
+
+**Login now enforces the full password rules.** The original plan deliberately kept
+login at `min(1)` so that pre-rule passwords still worked; that was reversed by an
+explicit decision, knowing it locks out any such account until it is reset out of
+band. The trade-off is recorded in the ADR and pinned by a schema test.
 
 **Added:** `registerSchema` (reusing Phase 4's `passwordSchema`); `use-register.ts`, `use-google-login.ts`; `register-form.tsx`, `google-button.tsx`; `src/app/(auth)/register/page.tsx` mirroring `login/page.tsx`; `src/app/api/auth/register/route.ts` (POST→204) and `src/app/api/auth/google/route.ts`.
 
