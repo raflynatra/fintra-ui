@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoginError } from "./login-error";
 import { CardContent } from "@/components/ui/card";
+import { APP_ROUTES } from "@/lib/constants";
 import { loginSchema } from "@/features/auth/schema";
 import { LoginPayload } from "@/features/auth/types";
 import { useLogin } from "@/features/auth/hooks/use-login";
@@ -78,6 +80,13 @@ export function LoginForm() {
         <Button type="submit" disabled={login.isPending} className="w-full">
           {login.isPending ? <Loader className="animate-spin" /> : "Sign In"}
         </Button>
+
+        <p className="text-center text-sm text-muted-foreground">
+          New to Fintra?{" "}
+          <Link href={APP_ROUTES.register} className="text-primary underline">
+            Create an account
+          </Link>
+        </p>
       </CardContent>
     </form>
   );

@@ -1,8 +1,14 @@
 import * as z from "zod";
 import { ApiResponse } from "@/types/api";
-import { changePasswordFormSchema, loginSchema } from "./schema";
+import {
+  changePasswordFormSchema,
+  loginSchema,
+  registerSchema,
+} from "./schema";
 
 export type LoginPayload = z.infer<typeof loginSchema>;
+
+export type RegisterPayload = z.infer<typeof registerSchema>;
 
 export type ChangePasswordFormValues = z.infer<typeof changePasswordFormSchema>;
 
