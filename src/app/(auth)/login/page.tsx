@@ -2,7 +2,14 @@ import { Card } from "@/components/ui/card";
 import { LoginForm, LoginHeader } from "@/features/auth/components";
 import Image from "next/image";
 
-export default function LoginPage() {
+interface LoginPageProps {
+  searchParams: Promise<{ registered?: string }>;
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  /** Set when registration succeeded but the automatic sign-in didn't. */
+  const { registered } = await searchParams;
+
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
@@ -17,6 +24,13 @@ export default function LoginPage() {
           />
         </div>
         <LoginHeader />
+
+        {registered && (
+          <p className="mx-6 rounded-md border border-primary/40 bg-primary/5 px-4 py-3 text-sm text-primary">
+            Your account was created. Sign in to continue.
+          </p>
+        )}
+
         <LoginForm />
       </Card>
     </div>

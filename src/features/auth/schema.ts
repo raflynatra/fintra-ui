@@ -50,6 +50,16 @@ export const passwordSchema = z
     }
   });
 
+/** Mirrors the backend's register rules so the common mistakes never round-trip. */
+export const registerSchema = z.object({
+  name: z.string().min(1, "Enter your name").max(100, "Keep it under 100 characters"),
+  email: z
+    .string()
+    .email("Invalid email address")
+    .max(255, "Keep it under 255 characters"),
+  password: passwordSchema,
+});
+
 export const changePasswordFormSchema = z
   .object({
     currentPassword: z.string().min(1, "Enter your current password"),
