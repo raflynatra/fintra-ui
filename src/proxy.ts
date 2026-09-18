@@ -38,6 +38,16 @@ export async function proxy(req: NextRequest) {
     }
 
     if (!res.ok || isApiError(result)) {
+      /**
+       * Same distinction the API client draws: only a rejected session signs
+       * the user out. A rate limit (the refresh endpoint is capped per IP) or a
+       * backend fault is transient, so keep the cookie and render without a
+       * fresh token — the client retries on its next request.
+       */
+      if (res.status !== 401 && res.status !== 403) {
+        return NextResponse.next();
+      }
+
       const response = NextResponse.redirect(new URL(APP_ROUTES.login, req.url));
       response.cookies.delete("refresh_token");
       return response;
